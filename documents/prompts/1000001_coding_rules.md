@@ -1,0 +1,1 @@
+SpringBootでthymeleaf、SpringMVCを使うGradleプロジェクトを作るとき、ベストプラクティスとして推奨されるコーディング規約を提示してください。
