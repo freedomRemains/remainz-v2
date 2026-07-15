@@ -1,0 +1,15 @@
+# Spring設定
+spring:
+
+  # アプリケーション設定
+  application:
+
+    # アプリケーション名設定
+    name: remainz-v2
+
+  # DB接続設定
+  datasource:
+    url: jdbc:sqlite:./taskallv2.db
+    driver-class-name: org.sqlite.JDBC
+    username:
+    password:
