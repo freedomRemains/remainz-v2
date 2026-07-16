@@ -89,13 +89,17 @@ Spring Boot＋Thymeleafへ乗せ換え、ECSコンテナなどにデプロイし
 
 ## DB定義・DBデータ資材の生成（`documents/design/2000001_base_design.md` 参照）
 
-- DB定義は `src/main/resources/db/TBL_DEF.txt` で管理する（移植元は
+- `src/main/java/.../common/db` 配下は `data`（SQL生成元となる各テーブルのデータ資材）と
+  `sql`（`data`から生成したSQL）に分けて管理する。
+- DB定義は `src/main/resources/db/data/TBL_DEF.txt` で管理する（移植元は
   `src/test/resources/service/script/dbmng/h2/20_dbdata/TBL_DEF.txt`）。不要なテーブルを
   除き、基本的にはそのまま流用する。各テーブルのDROP/CREATE SQLはこのファイルから生成する
   （移植元の `GetTableCreateSqlService`/`GetTableDropSqlService` が該当）。
-- DBデータは `src/main/resources/db` 配下（1テーブル1ファイル）で管理し、INSERT/SELECT SQL
+- DBデータは `src/main/resources/db/data` 配下（1テーブル1ファイル）で管理し、INSERT/SELECT SQL
   を生成する（移植元の `GetTableInsertSqlService`/`GetTableSelectSqlService` が該当、
   移植元データは `src/test/resources/service/script/dbmng/h2/20_dbdata/10_authorized` 配下）。
+- DB定義・DBデータいずれについても、生成したSQLは `src/main/resources/db/sql` に配置する
+  （生成元の`data`と生成物の`sql`を明確に分離する）。
 - これらSQL生成コードを移植する際も、例外処理・入出力（JSON文字列化）は上記の新方針に
   合わせて書き直す。
 - `TBL_DEF` テーブルはDB内のテーブル定義自体を保持する特殊テーブルで、`VERSION` 以下の

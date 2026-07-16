@@ -124,6 +124,8 @@ DBテーブルには、次の規則を設けます。
 src/main/java/com/remainz
 	common              Webやバッチなどの仕組みに依存しない、共通的な資材を配置する
 		db                  DBに関連する資材を配置する
+			data                SQL生成の元資材となる各テーブルのデータを配置する
+			sql                 dataディレクトリに基づき作成したSQLを配置する
 		exception           共通例外の資材を配置する
 		param               共通パラメータの資材を配置する(remainz-v2では廃止)
 		service             共通業務ロジック(サービス)の資材を配置する
@@ -253,7 +255,7 @@ html: {
 
 ## DB資材(DROP / CREATE / INSERT / SELECTのSQL)の生成について
 
-- DB定義は「remainz-v2/src/main/resources/db/TBL_DEF.txt」で管理します。
+- DB定義は「remainz-v2/src/main/resources/db/data/TBL_DEF.txt」で管理します。
     - 移植元では「remainz/src/test/resources/service/script/dbmng/h2/20_dbdata/TBL_DEF.txt」が該当します。
     - 不要なテーブルもあるため、全て一律で移植はしませんが、基本的に資材はそのまま流用します。
     - 各テーブルの DROP / CREATE のSQLは、このファイルに基づいて作成します。
@@ -267,13 +269,15 @@ html: {
         - 入出力はJSON文字列としたいです。(String)
         - 移植元はGenericParamというものを使っていました。
 
-- DBデータは「remainz-v2/src/main/resources/db」配下に資材を配置して管理します。
+- DBデータは「remainz-v2/src/main/resources/db/data」配下に資材を配置して管理します。
     - 移植元では「remainz/src/test/resources/service/script/dbmng/h2/20_dbdata/10_authorized」配下の資材が該当します。
     - 不要なテーブルもあるため、全て一律で移植はしませんが、基本的に資材はそのまま流用します。
     - 各テーブルの INSERT / SELECT のSQLは、このディレクトリにあるファイルに基づいて作成します。
     - 1テーブル1ファイルのテキストデータとなっています。
     - SQL生成のソースコードは「src/main/java/com/remainz/common/service/dbmng/common/GetTableInsertSqlService.java」  
       「src/main/java/com/remainz/common/service/dbmng/common/GetTableSelectSqlService.java」が該当します。
+
+- DB定義、DBデータともに生成したSQLは「remainz-v2/src/main/resources/db/sql」に配置するものとします。
 
 - 移植元の「remainz」ではh2及びMySQLをサポートしており、SQL自動生成は両方で実施していました。
     - 「src/test/resources/service/script/dbmng/h2」は、h2向け資材の出力ディレクトリです。
