@@ -60,6 +60,9 @@ dependencies {
 
 	// JUnitを使用するための設定
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Mockitoを使用するための設定
+	testImplementation 'org.mockito:mockito-core:5.14.2'
 }
 
 // テスト設定
@@ -67,4 +70,14 @@ tasks.named('test') {
 
 	// JUnitを使う設定
 	useJUnitPlatform()
+
+	// Mockitoの内部モック生成(Byte Buddyによるバイトコード操作)を、実行時アタッチではなく
+	// javaagentとして起動時に読み込む設定(コンテナ環境等、実行時アタッチが許可されない場合の対策)
+	doFirst {
+		def mockitoJar = configurations.testRuntimeClasspath.files
+				.find { it.name.startsWith('mockito-core') }
+		if (mockitoJar != null) {
+			jvmArgs "-javaagent:${mockitoJar}"
+		}
+	}
 }
