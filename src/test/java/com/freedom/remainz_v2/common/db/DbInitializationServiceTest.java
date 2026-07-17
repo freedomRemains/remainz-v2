@@ -38,7 +38,7 @@ class DbInitializationServiceTest {
 
         dbInitializationService.initializeDatabase();
 
-        // 21テーブル分のDROP・CREATEと、データファイルが存在するTBL_DEF分(559レコード)のINSERTが実行される
-        verify(jdbcTemplate, times(21 + 21 + 559)).execute(anyString());
+        // 21テーブル分のDROP・CREATEと、データファイルが存在するTBL_DEF分(557レコード)のINSERTが実行される
+        verify(jdbcTemplate, times(21 + 21 + 557)).execute(anyString());
     }
 }
