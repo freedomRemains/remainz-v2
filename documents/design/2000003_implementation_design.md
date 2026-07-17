@@ -13,6 +13,8 @@
     - 「次のURLで示されるissueの内容を実装してください。[URL]」といった依頼を行うものとします。
     - issue指定のない実装依頼は、「実装依頼にはissueが必要です」と回答してください。
     - その場合、実装作業は行わないものとします。
+- 実装作業を開始する前に、superpowers(https://github.com/obra/superpowers)が有効かどうか確認してください。
+    - superpowersプラグイン由来のスキル群(using-superpowers、brainstorming、test-driven-development、systematic-debugging、writing-plans)が利用可能なスキルとして読み込まれていることを確認してください。
 - AI実装結果は、pull requestとするものと前提します。
     - pull requestの内容をレビューし、指摘があればpull requestにコメントを追記します。
     - pull requestのURLを指定して、指摘修正をAIに依頼するものとします。
