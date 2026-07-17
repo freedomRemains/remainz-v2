@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
+import com.freedom.remainz_v2.common.util.MsgUtil;
 
 /**
  * テーブル定義から、SELECT文を生成するクラスです。
@@ -15,6 +16,16 @@ import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
  */
 public class SelectSqlBuilder {
 
+    private final MsgUtil msg;
+
+    public SelectSqlBuilder() {
+        this(new MsgUtil());
+    }
+
+    public SelectSqlBuilder(MsgUtil msg) {
+        this.msg = msg;
+    }
+
     /**
      * SELECT文を生成します。
      *
@@ -25,7 +36,7 @@ public class SelectSqlBuilder {
     public String build(String tableName, List<Map<String, String>> columnDefs) {
 
         if (columnDefs == null || columnDefs.isEmpty()) {
-            throw new BusinessRuleViolationException("カラム定義が存在しません。tableName=" + tableName);
+            throw new BusinessRuleViolationException(msg.get("msg.err.common.db.columnDefNotFound", tableName));
         }
 
         StringBuilder columnPart = new StringBuilder();

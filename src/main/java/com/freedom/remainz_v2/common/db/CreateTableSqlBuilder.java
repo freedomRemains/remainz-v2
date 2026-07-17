@@ -3,20 +3,35 @@ package com.freedom.remainz_v2.common.db;
 import java.util.List;
 import java.util.Map;
 
+import com.freedom.remainz_v2.common.db.sqlite.SqlitePrimaryKeyColumnSqlBuilder;
 import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
+import com.freedom.remainz_v2.common.util.MsgUtil;
 
 /**
  * TBL_DEFのカラム定義から、CREATE TABLE文を生成するクラスです。
  *
  * <p>
- * SQLiteでの動作を前提としています。SQLiteのAUTOINCREMENTは
- * 「{@code <カラム> INTEGER PRIMARY KEY AUTOINCREMENT}」という記述が必須のため、
- * 主キーカラム（{@code KEY_DIV=PRI}）は型・NOT NULL・DEFAULTの指定を行わず、
- * このSQLite固有の書式で出力します（本プロジェクトの主キーは必ず単一カラムの
- * 自動採番サロゲートキーであるため、この単純化で問題ありません）。
+ * 主キーカラム（{@code KEY_DIV=PRI}）の自動採番記法はDB製品ごとに異なる
+ * （例: SQLiteは{@code AUTOINCREMENT}、MySQLは{@code AUTO_INCREMENT}）ため、
+ * {@link PrimaryKeyColumnSqlBuilder}として切り出し、DB製品ごとの実装
+ * （{@code common/db/[個別データベース名]}パッケージ）を注入して使用します。
+ * 本プロジェクトの主キーは必ず単一カラムの自動採番サロゲートキーであるため、
+ * それ以外のカラムのみ型・NOT NULL・DEFAULTの指定を行います。
  * </p>
  */
 public class CreateTableSqlBuilder {
+
+    private final MsgUtil msg;
+    private final PrimaryKeyColumnSqlBuilder primaryKeyColumnSqlBuilder;
+
+    public CreateTableSqlBuilder() {
+        this(new MsgUtil(), new SqlitePrimaryKeyColumnSqlBuilder());
+    }
+
+    public CreateTableSqlBuilder(MsgUtil msg, PrimaryKeyColumnSqlBuilder primaryKeyColumnSqlBuilder) {
+        this.msg = msg;
+        this.primaryKeyColumnSqlBuilder = primaryKeyColumnSqlBuilder;
+    }
 
     /**
      * CREATE TABLE文を生成します。
@@ -28,7 +43,7 @@ public class CreateTableSqlBuilder {
     public String build(String tableName, List<Map<String, String>> columnDefs) {
 
         if (columnDefs == null || columnDefs.isEmpty()) {
-            throw new BusinessRuleViolationException("カラム定義が存在しません。tableName=" + tableName);
+            throw new BusinessRuleViolationException(msg.get("msg.err.common.db.columnDefNotFound", tableName));
         }
 
         StringBuilder sql = new StringBuilder();
@@ -54,9 +69,9 @@ public class CreateTableSqlBuilder {
         String keyDiv = columnDef.get("KEY_DIV");
         String defaultValue = columnDef.get("DEFAULT_VALUE");
 
-        // 主キー(サロゲートキー)は、SQLiteのAUTOINCREMENTが要求する記述に固定する
+        // 主キー(サロゲートキー)は、DB製品ごとの自動採番記法に従う
         if ("PRI".equals(keyDiv)) {
-            return fieldName + " INTEGER PRIMARY KEY AUTOINCREMENT";
+            return primaryKeyColumnSqlBuilder.build(fieldName);
         }
 
         StringBuilder column = new StringBuilder();

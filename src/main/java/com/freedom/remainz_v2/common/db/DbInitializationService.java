@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.freedom.remainz_v2.common.exception.ApplicationInternalException;
+import com.freedom.remainz_v2.common.util.MsgUtil;
 
 /**
  * 事前生成済みのSQL（{@code classpath:db/sql/*.sql}）を使って、
@@ -29,6 +30,7 @@ public class DbInitializationService {
 
     private final JdbcTemplate jdbcTemplate;
     private final TableDefLoader tableDefLoader;
+    private final MsgUtil msg;
 
     /**
      * {@link TableDefLoader}は依存を持たない補助クラスのため、Springのコンストラクタ
@@ -37,10 +39,11 @@ public class DbInitializationService {
     public DbInitializationService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.tableDefLoader = new TableDefLoader();
+        this.msg = new MsgUtil();
     }
 
     /**
-     * 「db/data/TBL_DEF.txt」に定義された全テーブルについて、DROP -&gt; CREATE -&gt; INSERTの順に、
+     * 「db/data/TBL_DEF.txt」に定義された全テーブルについて、DROP -> CREATE -> INSERTの順に、
      * 事前生成済みのSQLファイルを実行します。
      */
     @Transactional
@@ -66,7 +69,7 @@ public class DbInitializationService {
                     tableDefLoader.load(inputStream);
             return new ArrayList<>(tableDefMap.keySet());
         } catch (IOException e) {
-            throw new ApplicationInternalException("TBL_DEF.txtの読み込みに失敗しました。", e);
+            throw new ApplicationInternalException(msg.get("msg.err.common.db.tblDefReadFailed"), e);
         }
     }
 
@@ -90,7 +93,7 @@ public class DbInitializationService {
         try (InputStream inputStream = resource.getInputStream()) {
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new ApplicationInternalException("SQLファイルの読み込みに失敗しました。resource=" + resource, e);
+            throw new ApplicationInternalException(msg.get("msg.err.common.db.sqlResourceReadFailed", resource), e);
         }
     }
 }

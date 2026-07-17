@@ -9,6 +9,9 @@ plugins {
 
 	// 依存関係管理を使用する設定
 	id 'io.spring.dependency-management' version '1.1.7'
+
+	// jacocoの設定
+	id 'jacoco'
 }
 
 // グループ及びバージョンの設定
@@ -79,5 +82,34 @@ tasks.named('test') {
 		if (mockitoJar != null) {
 			jvmArgs "-javaagent:${mockitoJar}"
 		}
+	}
+
+	// テストの最後でjacocoのレポート出力を行う設定
+	finalizedBy jacocoTestReport
+}
+
+// jacocoのレポートから除外するクラスファイルを定義する
+def jacocoExcludeFiles = [
+	'**/RemainzV2Application.class'
+]
+
+// jacoco設定
+jacocoTestReport {
+
+	// テストに依存(連動)して動作するよう設定する
+	dependsOn tasks.named('test')
+
+	// HTMLレポートを出力する設定(CI/CD環境でアーティファクトとして参照する想定)
+	reports {
+		html.required = true
+	}
+
+	// mainクラスなど、単体テスト対象外のクラスを除外する
+	afterEvaluate {
+		classDirectories.setFrom(classDirectories.files.collect {
+			fileTree(
+					dir: it,
+					excludes: jacocoExcludeFiles)
+		})
 	}
 }

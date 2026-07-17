@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 
 import com.freedom.remainz_v2.common.exception.ApplicationInternalException;
 import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
+import com.freedom.remainz_v2.common.util.MsgUtil;
 
 /**
  * タブ区切り(TSV)形式のテーブル定義／テーブルデータファイルを読み込むクラスです。
@@ -23,6 +24,16 @@ import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
  * </p>
  */
 public class TsvTableFileReader {
+
+    private final MsgUtil msg;
+
+    public TsvTableFileReader() {
+        this(new MsgUtil());
+    }
+
+    public TsvTableFileReader(MsgUtil msg) {
+        this.msg = msg;
+    }
 
     /**
      * TSVファイルを読み込み、レコードのリストを返却します。
@@ -37,12 +48,12 @@ public class TsvTableFileReader {
     public ArrayList<LinkedHashMap<String, String>> read(Path filePath) {
 
         if (!Files.exists(filePath)) {
-            throw new BusinessRuleViolationException("ファイルが存在しません。filePath=" + filePath);
+            throw new BusinessRuleViolationException(msg.get("msg.err.common.db.fileNotFound", filePath));
         }
         try (InputStream inputStream = Files.newInputStream(filePath)) {
             return read(inputStream);
         } catch (IOException e) {
-            throw new ApplicationInternalException("ファイルの読み込みに失敗しました。filePath=" + filePath, e);
+            throw new ApplicationInternalException(msg.get("msg.err.common.db.fileReadFailed", filePath), e);
         }
     }
 
@@ -63,7 +74,7 @@ public class TsvTableFileReader {
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             return readRecords(reader);
         } catch (IOException e) {
-            throw new ApplicationInternalException("TSVの読み込みに失敗しました。", e);
+            throw new ApplicationInternalException(msg.get("msg.err.common.db.tsvReadFailed"), e);
         }
     }
 
@@ -71,7 +82,7 @@ public class TsvTableFileReader {
 
         String headerLine = reader.readLine();
         if (headerLine == null) {
-            throw new BusinessRuleViolationException("ヘッダ行が存在しません。");
+            throw new BusinessRuleViolationException(msg.get("msg.err.common.db.headerRowNotFound"));
         }
         String[] headers = headerLine.split("\t", -1);
 

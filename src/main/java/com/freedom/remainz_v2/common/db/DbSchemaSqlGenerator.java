@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.freedom.remainz_v2.common.exception.ApplicationInternalException;
+import com.freedom.remainz_v2.common.util.MsgUtil;
 
 /**
  * 「db/data」配下の資材(TBL_DEF.txt、及び各テーブルのデータファイル)から、
@@ -28,21 +29,23 @@ public class DbSchemaSqlGenerator {
     private final CreateTableSqlBuilder createTableSqlBuilder;
     private final InsertSqlBuilder insertSqlBuilder;
     private final SelectSqlBuilder selectSqlBuilder;
+    private final MsgUtil msg;
 
     public DbSchemaSqlGenerator() {
         this(new TableDefLoader(), new TsvTableFileReader(), new DropTableSqlBuilder(),
-                new CreateTableSqlBuilder(), new InsertSqlBuilder(), new SelectSqlBuilder());
+                new CreateTableSqlBuilder(), new InsertSqlBuilder(), new SelectSqlBuilder(), new MsgUtil());
     }
 
     public DbSchemaSqlGenerator(TableDefLoader tableDefLoader, TsvTableFileReader tsvTableFileReader,
             DropTableSqlBuilder dropTableSqlBuilder, CreateTableSqlBuilder createTableSqlBuilder,
-            InsertSqlBuilder insertSqlBuilder, SelectSqlBuilder selectSqlBuilder) {
+            InsertSqlBuilder insertSqlBuilder, SelectSqlBuilder selectSqlBuilder, MsgUtil msg) {
         this.tableDefLoader = tableDefLoader;
         this.tsvTableFileReader = tsvTableFileReader;
         this.dropTableSqlBuilder = dropTableSqlBuilder;
         this.createTableSqlBuilder = createTableSqlBuilder;
         this.insertSqlBuilder = insertSqlBuilder;
         this.selectSqlBuilder = selectSqlBuilder;
+        this.msg = msg;
     }
 
     /**
@@ -83,7 +86,7 @@ public class DbSchemaSqlGenerator {
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {
-            throw new ApplicationInternalException("ディレクトリの作成に失敗しました。dir=" + dir, e);
+            throw new ApplicationInternalException(msg.get("msg.err.common.db.directoryCreateFailed", dir), e);
         }
     }
 
@@ -91,7 +94,7 @@ public class DbSchemaSqlGenerator {
         try {
             Files.writeString(filePath, content + System.lineSeparator(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new ApplicationInternalException("ファイルの書き込みに失敗しました。filePath=" + filePath, e);
+            throw new ApplicationInternalException(msg.get("msg.err.common.db.fileWriteFailed", filePath), e);
         }
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
+import com.freedom.remainz_v2.common.util.MsgUtil;
 
 /**
  * テーブル定義とテーブルデータから、INSERT文を生成するクラスです。
@@ -15,6 +16,16 @@ import com.freedom.remainz_v2.common.exception.BusinessRuleViolationException;
  * </p>
  */
 public class InsertSqlBuilder {
+
+    private final MsgUtil msg;
+
+    public InsertSqlBuilder() {
+        this(new MsgUtil());
+    }
+
+    public InsertSqlBuilder(MsgUtil msg) {
+        this.msg = msg;
+    }
 
     /**
      * INSERT文を生成します。1レコード1文とし、テーブルのレコード数分のSQLをリストで返却します。
@@ -78,6 +89,6 @@ public class InsertSqlBuilder {
                 return columnDef.get("TYPE_NAME");
             }
         }
-        throw new BusinessRuleViolationException("カラム定義が見つかりません。columnName=" + columnName);
+        throw new BusinessRuleViolationException(msg.get("msg.err.common.db.columnDefForColumnNotFound", columnName));
     }
 }
