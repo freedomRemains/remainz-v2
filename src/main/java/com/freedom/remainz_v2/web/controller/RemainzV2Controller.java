@@ -1,4 +1,4 @@
-package com.freedom.remainz_v2.controller;
+package com.freedom.remainz_v2.web.controller;
 
 import java.util.HashMap;
 import java.util.Map;
