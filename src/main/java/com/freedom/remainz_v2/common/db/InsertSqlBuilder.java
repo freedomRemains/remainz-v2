@@ -14,6 +14,13 @@ import com.freedom.remainz_v2.common.util.MsgUtil;
  * カラムの型が「INT」の場合は数値としてそのまま出力し、それ以外の型はシングルクオートで囲みます。
  * データ上の値が「null」という文字列、または空文字列の場合は、数値型は「0」、それ以外は「NULL」として扱います。
  * </p>
+ *
+ * <p>
+ * 移植元「remainz」の{@code GetTableInsertSqlService}と同様、値中のシングルクオートの
+ * エスケープ({@code '}→{@code ''})は行いません。SQL文字列として直接埋め込むため、値中に
+ * シングルクオートを含める場合はデータファイル側で予め{@code ''}のようにエスケープしておく
+ * 必要があります(例: {@code PARTS_ITEM.txt}の{@code ITEM_QUERY}列)。
+ * </p>
  */
 public class InsertSqlBuilder {
 
@@ -80,7 +87,7 @@ public class InsertSqlBuilder {
         if (columnValue == null || "null".equals(columnValue)) {
             return "NULL";
         }
-        return "'" + columnValue.replace("'", "''") + "'";
+        return "'" + columnValue + "'";
     }
 
     private String findColumnType(List<Map<String, String>> columnDefs, String columnName) {
