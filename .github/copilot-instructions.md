@@ -73,6 +73,27 @@ Spring Boot＋Thymeleafへ乗せ換え、ECSコンテナなどにデプロイし
   JSON文字列**に置き換え、`ObjectMapper` で必要なパラメータを取得する。ある業務ロジックの
   出力JSONが次の業務ロジックの入力JSONになる点は変わらない。
 
+## 画面パーツ・画面表示項目のJSON構造（issue #9、`documents/design/2000004_model_driven_web_design.md` 参照）
+
+- 移植元「remainz」の `CreateHtmlService` は、`PARTS_ITEM.ITEM_KEY` をトップレベルの
+  キーとしてリクエスト属性(≒JSONのトップレベル)に展開し、JSP側では
+  `<c:forEach items="${htmlPage}">` で `PARTS_IN_PAGE` 単位のパーツをループしつつ、
+  各パーツが使う画面表示項目はトップレベルの `${itemKey}`（例: `${systemName}`,
+  `${urlLink}`）に直接アクセスする構成だった。この方式は、同一画面に同じ `HTML_PARTS`
+  （＝同じ`ITEM_KEY`の組)を持つパーツが2つ以上あると、後から処理したパーツの結果で
+  前のパーツの結果を上書きしてしまう衝突バグを内包していた。
+- `remainz-v2` では、`htmlPage` 配列の各要素（`PARTS_IN_PAGE_ID` 単位）に、そのパーツの
+  画面表示項目を `items` 配列としてネストする構造に変更し、この衝突を構造的に防止する。
+  Thymeleaf側は `th:each="part : ${htmlPage}"` → `th:each="item : ${part.items}"` →
+  `th:each="record : ${item.records}"` の3段ループで、`item.itemKey` により表示対象の
+  項目を判定してから `record.<カラム物理名>` で値を参照する（`records` 内のフィールド名は
+  カラム物理名のまま、キャメルケースに変換しない）。具体例は
+  `documents/design/2000004_model_driven_web_design.md` の「出力JSON構造の改善」節、
+  実装は `CreateHtmlService`/`10000_contents.html` を参照。
+- 今後、移植元のJSPをThymeleafへ移植する際は、上記の理由から旧JSPの
+  `${itemKey}` 直接参照をそのまま移植せず、`htmlPage`/`items`のネスト構造に沿った
+  ループへ書き換えること。
+
 ## DBアクセスの方針（`documents/design/2000001_base_design.md` 参照）
 
 - 移植元の `com.remainz.common.db.GenericDb` に相当する仕組みは、変更せずそのまま採用する
