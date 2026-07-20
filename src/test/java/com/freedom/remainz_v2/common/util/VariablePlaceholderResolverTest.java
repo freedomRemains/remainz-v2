@@ -13,6 +13,7 @@ import tools.jackson.databind.node.ObjectNode;
 class VariablePlaceholderResolverTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final MsgUtil msg = new MsgUtil();
 
     @Test
     void プレースホルダーがコンテキストの値で置換されること() {
@@ -20,7 +21,7 @@ class VariablePlaceholderResolverTest {
         ObjectNode context = objectMapper.createObjectNode();
         context.put("tableName", "ACCNT");
 
-        String result = VariablePlaceholderResolver.resolve("SELECT * FROM #{tableName}", context);
+        String result = VariablePlaceholderResolver.resolve("SELECT * FROM #{tableName}", context, msg);
 
         assertThat(result).isEqualTo("SELECT * FROM ACCNT");
     }
@@ -33,7 +34,7 @@ class VariablePlaceholderResolverTest {
         context.put("recordId", "1000001");
 
         String result = VariablePlaceholderResolver.resolve(
-                "SELECT * FROM #{tableName} WHERE #{tableName}_ID = #{recordId}", context);
+                "SELECT * FROM #{tableName} WHERE #{tableName}_ID = #{recordId}", context, msg);
 
         assertThat(result).isEqualTo("SELECT * FROM ACCNT WHERE ACCNT_ID = 1000001");
     }
@@ -43,7 +44,7 @@ class VariablePlaceholderResolverTest {
 
         ObjectNode context = objectMapper.createObjectNode();
 
-        String result = VariablePlaceholderResolver.resolve("SELECT * FROM #{tableName}", context);
+        String result = VariablePlaceholderResolver.resolve("SELECT * FROM #{tableName}", context, msg);
 
         assertThat(result).isEqualTo("SELECT * FROM #{tableName}");
     }
@@ -51,7 +52,7 @@ class VariablePlaceholderResolverTest {
     @Test
     void プレースホルダーが含まれない文字列はそのまま返却されること() {
 
-        String result = VariablePlaceholderResolver.resolve("SELECT * FROM ACCNT", objectMapper.createObjectNode());
+        String result = VariablePlaceholderResolver.resolve("SELECT * FROM ACCNT", objectMapper.createObjectNode(), msg);
 
         assertThat(result).isEqualTo("SELECT * FROM ACCNT");
     }
@@ -59,7 +60,7 @@ class VariablePlaceholderResolverTest {
     @Test
     void nullを渡した場合はnullが返却されること() {
 
-        String result = VariablePlaceholderResolver.resolve(null, objectMapper.createObjectNode());
+        String result = VariablePlaceholderResolver.resolve(null, objectMapper.createObjectNode(), msg);
 
         assertThat(result).isNull();
     }

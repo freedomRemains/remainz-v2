@@ -138,7 +138,7 @@ public class RemainzV2Controller {
             return "redirect:" + destination;
         }
 
-        return destination.endsWith(".jsp") ? destination.substring(0, destination.length() - 4) : destination;
+        return destination.endsWith(".html") ? destination.substring(0, destination.length() - 5) : destination;
     }
 
     private ObjectNode readAsObjectNode(String json) {

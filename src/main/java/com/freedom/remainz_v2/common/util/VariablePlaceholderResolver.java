@@ -31,9 +31,10 @@ public final class VariablePlaceholderResolver {
      *
      * @param template テンプレート文字列(nullの場合はnullをそのまま返却する)
      * @param context  プレースホルダーの置換に使用するJSONコンテキスト
+     * @param msg      警告ログメッセージの取得に使用する{@link MsgUtil}
      * @return 置換後の文字列
      */
-    public static String resolve(String template, JsonNode context) {
+    public static String resolve(String template, JsonNode context, MsgUtil msg) {
 
         if (template == null) {
             return null;
@@ -51,7 +52,7 @@ public final class VariablePlaceholderResolver {
             result.append(template, lastEnd, matcher.start());
 
             if (valueNode == null || valueNode.isNull() || valueNode.asString().isEmpty()) {
-                logger.warn("プレースホルダーに対応する値が見つかりません。key={}", key);
+                logger.warn(msg.get("msg.warn.web.placeholderValueNotFound", key));
                 result.append(matcher.group());
             } else {
                 result.append(valueNode.asString());

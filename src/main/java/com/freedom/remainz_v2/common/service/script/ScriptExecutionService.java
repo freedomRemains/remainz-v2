@@ -96,7 +96,7 @@ public class ScriptExecutionService {
 
         for (LinkedHashMap<String, String> row : paramList) {
             String paramKey = row.get("PARAM_KEY");
-            String paramValue = VariablePlaceholderResolver.resolve(row.get("PARAM_VALUE"), context);
+            String paramValue = VariablePlaceholderResolver.resolve(row.get("PARAM_VALUE"), context, msg);
 
             JsonNode existing = context.get(paramKey);
             if (existing != null && !existing.isNull() && !existing.asString().isEmpty()) {

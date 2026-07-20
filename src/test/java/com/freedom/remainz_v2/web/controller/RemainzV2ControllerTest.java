@@ -35,7 +35,7 @@ class RemainzV2ControllerTest {
     void トップページのGETリクエストで応答種別forwardの場合はビュー名が拡張子無しで解決されること() throws Exception {
 
         when(requestHandlingService.execute(anyString())).thenReturn(
-                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.jsp\","
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
                         + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"items\":[]}]}");
 
         mockMvc.perform(get("/remainz-v2/service/top.html"))

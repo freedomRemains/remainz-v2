@@ -72,8 +72,8 @@ public class CreateHtmlService implements ScriptElementService {
         ObjectNode output = objectMapper.createObjectNode();
         output.set("htmlPage", buildHtmlPage(pageRows, context));
         output.put("respKind", pageRows.get(0).get("RESP_KIND_" + requestKind));
-        output.put("destination",
-                VariablePlaceholderResolver.resolve(pageRows.get(0).get("DESTINATION_" + requestKind), context));
+        output.put("destination", VariablePlaceholderResolver.resolve(
+                pageRows.get(0).get("DESTINATION_" + requestKind), context, msg));
 
         return writeAsString(output);
     }
@@ -111,14 +111,15 @@ public class CreateHtmlService implements ScriptElementService {
 
     private ArrayNode selectItem(String itemQuery, ObjectNode context) {
 
-        String sql = VariablePlaceholderResolver.resolve(itemQuery, context);
+        String sql = VariablePlaceholderResolver.resolve(itemQuery, context, msg);
         List<LinkedHashMap<String, String>> recordList = recordQueryService.select(sql);
 
         ArrayNode records = objectMapper.createArrayNode();
         for (LinkedHashMap<String, String> record : recordList) {
             ObjectNode recordNode = objectMapper.createObjectNode();
             for (Map.Entry<String, String> entry : record.entrySet()) {
-                recordNode.put(entry.getKey(), VariablePlaceholderResolver.resolve(entry.getValue(), context));
+                recordNode.put(entry.getKey(),
+                        VariablePlaceholderResolver.resolve(entry.getValue(), context, msg));
             }
             records.add(recordNode);
         }
