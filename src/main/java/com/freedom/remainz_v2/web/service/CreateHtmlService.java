@@ -64,6 +64,10 @@ public class CreateHtmlService implements ScriptElementService {
         String requestUri = context.path("requestUri").asString("");
         String requestKind = context.path("requestKind").asString("");
 
+        if (context.path("errMsgKey").asString("").isBlank()) {
+            context.put("errMsgKey", "0");
+        }
+
         List<LinkedHashMap<String, String>> pageRows = recordQueryService.select(PAGE_SQL, List.of(requestUri));
         if (pageRows.isEmpty()) {
             throw new ApplicationInternalException(msg.get("msg.err.web.pageNotFound", requestUri));
@@ -71,9 +75,16 @@ public class CreateHtmlService implements ScriptElementService {
 
         ObjectNode output = objectMapper.createObjectNode();
         output.set("htmlPage", buildHtmlPage(pageRows, context));
-        output.put("respKind", pageRows.get(0).get("RESP_KIND_" + requestKind));
-        output.put("destination", VariablePlaceholderResolver.resolve(
-                pageRows.get(0).get("DESTINATION_" + requestKind), context, msg));
+
+        String existingRespKind = context.path("respKind").asString("");
+        output.put("respKind", existingRespKind.isBlank()
+                ? pageRows.get(0).get("RESP_KIND_" + requestKind)
+                : existingRespKind);
+
+        String existingDestination = context.path("destination").asString("");
+        output.put("destination", existingDestination.isBlank()
+                ? VariablePlaceholderResolver.resolve(pageRows.get(0).get("DESTINATION_" + requestKind), context, msg)
+                : existingDestination);
 
         return writeAsString(output);
     }
