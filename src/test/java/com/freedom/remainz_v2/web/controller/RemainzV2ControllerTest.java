@@ -37,7 +37,10 @@ class RemainzV2ControllerTest {
 
         when(requestHandlingService.execute(anyString())).thenReturn(
                 "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
-                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"items\":[]}]}");
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
 
         mockMvc.perform(get("/remainz-v2/service/top.html"))
                 .andExpect(status().isOk())
@@ -62,7 +65,10 @@ class RemainzV2ControllerTest {
 
         when(requestHandlingService.execute(anyString())).thenReturn(
                 "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
-                        + "\"htmlPage\":[{\"partsInPageId\":\"1000201\",\"items\":[]}]}");
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000201\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
 
         mockMvc.perform(get("/remainz-v2/service/myPage.html"))
                 .andExpect(status().isOk())
