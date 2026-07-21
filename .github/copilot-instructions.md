@@ -40,6 +40,27 @@ Spring Boot＋Thymeleafへ乗せ換え、ECSコンテナなどにデプロイし
 - 移植依頼時は対象のクラス名・パッケージ・機能単位を具体的に指定すると、探索の手間が
   減り精度が上がる。
 
+### 画面移植(JSP→Thymeleaf)issue対応の一般手順
+
+過去の画面移植issue(#9, #11)を踏まえた、今後の画面移植issue向けの一般的な手順は次の通りです。
+
+1. 移植元JSPの`10xxx`(権限確認ラッパー)/`common/20xxx`(画面パーツ本体)のペアを、対象画面について
+   洗い出す(`/home/develop/remainz/src/main/webapp/WEB-INF/jsp/`配下)。
+2. 対応するThymeleafフラグメントを`src/main/resources/templates/parts/`(ラッパー)・
+   `src/main/resources/templates/parts/common/`(本体)配下に、同じファイル番号(`10xxx`/`20xxx`)で
+   作成する。権限確認は`T(com.freedom.remainz_v2.web.util.AuthUtil).hasReadAuth(...)`/
+   `hasEditAuth(...)`をラッパーの`th:if`で呼び出す。パート横断で画面表示項目を参照する必要が
+   ある場合は`T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, itemKey)`
+   を使う。
+3. 必要なDBデータ(`SCR_ELM.SERVICE_NAME`等)を`com.remainz.*`から`com.freedom.remainz_v2.*`へ
+   更新し(`VERSION`を1増やし`UPDATED_AT`を作業日に更新)、
+   `DbSchemaSqlGeneratorRealDataTest`を実行してSQLを再生成する。
+4. 必要なバックエンドサービス(`ScriptElementService`実装)を移植する。例外方針
+   (`BusinessRuleViolationException`/`ApplicationInternalException`)・JSON入出力方針
+   (`tools.jackson.*`、`MsgUtil`経由のログメッセージ)は本プロジェクトの規約に合わせて書き直す。
+5. 各サービス・ユーティリティクラスに、Mockitoベースの対応するテストクラスを追加する
+   (`@ExtendWith(MockitoExtension.class)`、DBアクセスは`RecordQueryService`をモック化)。
+
 ## パッケージ構成とコントローラの方針（`documents/design/2000001_base_design.md` 参照）
 
 - `remainz-v2` のパッケージは `com.freedom.remainz_v2` 配下に `common`（DB非依存の共通資材:
