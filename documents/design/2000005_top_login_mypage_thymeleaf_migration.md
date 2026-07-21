@@ -119,6 +119,19 @@ src/main/resources/static/
 - ヘッダの実描画(システム名・URLリンク・アカウント名表示)は、`HTML_PARTS_ID=1000001`
   (システム名)を契機に`10010_header.html`/`20010_commonHeader.html`が丸ごと担う。
 
+### HtmlPageItemUtil(新設: `web/util`)
+
+新しい`htmlPage[].items[]`構造では、画面表示項目は「それが属する`PARTS_IN_PAGE`(=`10xxx`ラッパー)」
+単位でネストされる。ところが`urlLink`のデータは`HTML_PARTS_ID=1000002`(共通ヘッダ、無効な
+ラッパー)側にネストされているのに対し、実際にナビゲーションリンクを描画するのは
+`10010_header`(`HTML_PARTS_ID=1000001`)側であるため、ヘッダーフラグメントは自分がループ中の
+partの`items`だけでは`urlLink`に到達できない。この問題に対処するため、`htmlPage`配列全体を
+横断して指定した`itemKey`のレコードを検索する静的ユーティリティ`HtmlPageItemUtil.findRecords
+(htmlPage, itemKey)`を`web/util`に新設し、各`20xxx`本体フラグメントはこれを用いて自身が
+必要とする画面表示項目を取得する(`htmlPage`自体はModel属性としてどのフラグメントからも
+参照可能なため、パートをまたいだ検索が可能)。一貫性のため、同一パート内に自身の項目が
+ネストされている場合も含め、全ての本体フラグメントでこのユーティリティを使用する。
+
 ### JSP→Thymeleaf変換対応表
 
 | JSP | Thymeleaf |
