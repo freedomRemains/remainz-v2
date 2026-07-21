@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.freedom.remainz_v2.common.exception.ApplicationInternalException;
 import com.freedom.remainz_v2.common.util.MsgUtil;
@@ -50,6 +51,16 @@ public class RemainzV2Controller {
     @GetMapping("/remainz-v2/service/top.html")
     public String getTop(HttpServletRequest request, Model model) {
         return handleRequest(request, "GET", model);
+    }
+
+    @GetMapping("/remainz-v2/service/myPage.html")
+    public String getMyPage(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @PostMapping("/remainz-v2/service/myPage.html")
+    public String postMyPage(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
     }
 
     private String handleRequest(HttpServletRequest request, String requestKind, Model model) {
