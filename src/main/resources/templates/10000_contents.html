@@ -7,7 +7,14 @@
 
 <body>
     <h1>TOP</h1>
-    <label th:text="${html.label}"></label>
+    <div th:each="part : ${htmlPage}">
+        <div th:each="item : ${part.items}">
+            <div th:each="record : ${item.records}">
+                <span th:if="${item.itemKey == 'systemName'}" th:text="${record.GNR_VAL}"></span>
+                <a th:if="${item.itemKey == 'urlLink'}" th:href="${record.URI_PATTERN}" th:text="${record.PAGE_NAME}"></a>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

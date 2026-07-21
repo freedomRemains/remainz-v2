@@ -57,6 +57,11 @@
     - `WARN`: 業務的なエラー（`BusinessRuleViolationException`発生時など）。
     - `INFO`: 主要な処理の開始・終了など、運用時に追いたい情報。
     - `DEBUG`: 開発時のみ必要な詳細情報。
+- `ERROR`/`WARN`でログ出力するメッセージは、文字列を直接記述せず
+  `src/main/resources/msg/messages.properties`にメッセージキー（`msg.err.～`/`msg.warn.～`）
+  として定義し、`MsgUtil#get`経由で取得する。1箇所でしか使わない文字列であっても、
+  本番リリース後のトレース対象となるため`messages.properties`に集約する。
+  `INFO`は要所ごとに記録するもので場所がほぼ自明なため、引き続き文字列を直接記述してよい。
 
 ---
 
@@ -77,6 +82,43 @@
   Javadocを付与する。自明な内容（getter/setterなど）にはコメント不要。
 - コード中のコメントは「なぜそうしているか」の説明に限定し、コードを読めば分かる内容
   （「何をしているか」の逐次説明）は書かない。
+- 上記に加えて、5～10行程度の処理のかたまり（処理ブロック）ごとに、その処理の概要を
+  説明する**ブロックコメント**を付与する。空行で区切られた単位が、おおまかな処理の
+  分かれ目の目安となる。ブロックコメントにより概要をつかんでから詳細なコードを読める
+  ようにすることで、保守時の読み解きを速くする狙いがある。例（移植元「remainz」の
+  コードにブロックコメントがある場合は、内容が妥当であればそのまま踏襲してよい。
+  ただしコピー＆ペーストのまま実態と合っていないコメントが残っていないか確認すること）:
+
+    ```java
+    @Override
+    public String execute(String contextJson) {
+
+        // 入力パラメータ(JSON文字列)をObjectNodeとして読み込む
+        ObjectNode context = readAsObjectNode(contextJson);
+
+        // 入力パラメータからアカウントIDを取得し、なければデフォルトアカウントIDを適用する
+        String accountId = context.path("accountId").asString("");
+        if (accountId.isBlank()) {
+            accountId = DEFAULT_ACCNT_ID;
+        }
+
+        // アカウントIDをキーとして、DBからアカウント情報と権限情報を取得する
+        List<LinkedHashMap<String, String>> account = recordQueryService.select(ACCOUNT_SQL, List.of(accountId));
+        List<LinkedHashMap<String, String>> authList = recordQueryService.select(AUTH_SQL, List.of(accountId));
+
+        // アカウントIDをキーとして、要求ロールチェック(ページに対するロール制約のチェック)を行う
+        checkRequireRole(context.path("requestUri").asString(""), accountId);
+
+        // 出力パラメータとしてアカウントID、アカウント情報、権限情報をJSONに追加する
+        ObjectNode output = objectMapper.createObjectNode();
+        output.put("accountId", accountId);
+        output.putPOJO("account", account);
+        output.putPOJO("authList", authList);
+
+        // ObjectNodeをJSON文字列に変換し、呼び出し側に返却する
+        return writeAsString(output);
+    }
+    ```
 
 ---
 
