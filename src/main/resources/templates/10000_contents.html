@@ -2,19 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>TOP</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/rwstyle.css">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <title th:text="${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'systemName').get(0).GNR_VAL}">Remainz</title>
 </head>
 
 <body>
-    <h1>TOP</h1>
-    <div th:each="part : ${htmlPage}">
-        <div th:each="item : ${part.items}">
-            <div th:each="record : ${item.records}">
-                <span th:if="${item.itemKey == 'systemName'}" th:text="${record.GNR_VAL}"></span>
-                <a th:if="${item.itemKey == 'urlLink'}" th:href="${record.URI_PATTERN}" th:text="${record.PAGE_NAME}"></a>
+    <div id="mainArea" class="container">
+        <form id="mainForm" method="POST">
+            <div th:each="part : ${htmlPage}">
+                <div th:replace="~{parts/10010_header :: wrapper(part=${part})}"></div>
+                <div th:replace="~{parts/10030_login :: wrapper(part=${part})}"></div>
+                <div th:replace="~{parts/10040_linkList :: wrapper(part=${part})}"></div>
+                <div th:replace="~{parts/10120_errMsgList :: wrapper(part=${part})}"></div>
             </div>
-        </div>
+        </form>
     </div>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="/js/rwscript.js"></script>
 </body>
 
 </html>
