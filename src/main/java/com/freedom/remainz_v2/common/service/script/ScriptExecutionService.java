@@ -71,10 +71,12 @@ public class ScriptExecutionService {
      */
     public String execute(String scriptId, String initialContext) {
 
+        // 入力JSONをオブジェクト化し、スクリプト実行前にSCR_PRMの値をコンテキストへ反映する
         ObjectNode context = readAsObjectNode(initialContext);
 
         applyScriptParams(scriptId, context);
 
+        // SCR_ELMを定義順に読み込み、各サービスの出力JSONを現在のコンテキストへマージする
         List<LinkedHashMap<String, String>> elementList = recordQueryService.select(SCR_ELM_SQL, List.of(scriptId));
 
         for (LinkedHashMap<String, String> row : elementList) {
@@ -92,12 +94,14 @@ public class ScriptExecutionService {
 
     private void applyScriptParams(String scriptId, ObjectNode context) {
 
+        // SCR_PRMを定義順に読み込み、プレースホルダー解決後の値を投入候補として準備する
         List<LinkedHashMap<String, String>> paramList = recordQueryService.select(SCR_PRM_SQL, List.of(scriptId));
 
         for (LinkedHashMap<String, String> row : paramList) {
             String paramKey = row.get("PARAM_KEY");
             String paramValue = VariablePlaceholderResolver.resolve(row.get("PARAM_VALUE"), context, msg);
 
+            // 既に入力コンテキスト側で値が設定されているキーは、警告のみ記録して上書きしない
             JsonNode existing = context.get(paramKey);
             if (existing != null && !existing.isNull() && !existing.asString().isEmpty()) {
                 logger.warn(msg.get("msg.warn.web.scriptParamAlreadyExists", paramKey, paramValue));
@@ -110,6 +114,7 @@ public class ScriptExecutionService {
 
     private ScriptElementService instantiate(String serviceName) {
         try {
+            // クラス名からSpring管理Beanを取得し、スクリプト要素サービスとして利用する
             Class<?> serviceClass = Class.forName(serviceName);
             return (ScriptElementService) applicationContext.getBean(serviceClass);
         } catch (ReflectiveOperationException | ClassCastException e) {

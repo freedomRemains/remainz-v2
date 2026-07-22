@@ -49,8 +49,10 @@ public class DbInitializationService {
     @Transactional
     public void initializeDatabase() {
 
+        // TBL_DEFの定義順を維持したまま、初期化対象テーブルの一覧を取得する
         List<String> tableNames = loadTableNamesInOrder();
 
+        // 依存関係を崩さないよう、DROP→CREATE→INSERTをそれぞれ定義順で順次実行する
         for (String tableName : tableNames) {
             executeSqlResourceIfPresent("db/sql/DROP_" + tableName + ".sql");
         }
@@ -63,6 +65,8 @@ public class DbInitializationService {
     }
 
     private List<String> loadTableNamesInOrder() {
+
+        // TBL_DEFを読み込み、定義ファイルに記載された順序のままテーブル名を取り出す
         ClassPathResource tblDefResource = new ClassPathResource("db/data/TBL_DEF.txt");
         try (InputStream inputStream = tblDefResource.getInputStream()) {
             LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap =
@@ -75,11 +79,13 @@ public class DbInitializationService {
 
     private void executeSqlResourceIfPresent(String resourcePath) {
 
+        // 対応するSQLリソースが存在しない場合は、その処理を何もせずスキップする
         ClassPathResource resource = new ClassPathResource(resourcePath);
         if (!resource.exists()) {
             return;
         }
 
+        // 1ファイル内の複数SQLをセミコロンで分割し、空文を除いて順に実行する
         String sqlFileContent = readResourceAsString(resource);
         for (String sql : sqlFileContent.split(";")) {
             String trimmedSql = sql.strip();

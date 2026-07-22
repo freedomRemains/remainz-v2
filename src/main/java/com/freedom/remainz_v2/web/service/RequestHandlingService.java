@@ -59,10 +59,12 @@ public class RequestHandlingService {
     @Transactional
     public String execute(String contextJson) {
 
+        // 入力JSONからリクエスト種別とURIを取り出し、以降の解決処理に利用する
         ObjectNode context = readAsObjectNode(contextJson);
         String requestKind = context.path("requestKind").asString("");
         String requestUri = context.path("requestUri").asString("");
 
+        // リクエスト内容に対応するスクリプトIDを解決し、実際の処理実行を共通サービスへ委譲する
         String scriptId = resolveScriptId(requestKind, requestUri);
 
         return scriptExecutionService.execute(scriptId, contextJson);
@@ -70,11 +72,13 @@ public class RequestHandlingService {
 
     private String resolveScriptId(String requestKind, String requestUri) {
 
+        // URIに対応するHTML_PAGEを一意に取得できることを確認し、スクリプト解決の前提を満たす
         List<LinkedHashMap<String, String>> pageRows = recordQueryService.select(HTML_PAGE_SQL, List.of(requestUri));
         if (pageRows.size() != 1) {
             throw new ApplicationInternalException(msg.get("msg.err.web.invalidRequestUri", requestUri));
         }
 
+        // リクエスト種別に対応するスクリプトIDを取得し、未定義のHTTPメソッド呼び出しを弾く
         String scriptId = pageRows.get(0).get("SCR_ID_" + requestKind);
         if (scriptId == null || "0".equals(scriptId)) {
             throw new ApplicationInternalException(

@@ -38,12 +38,14 @@ public class DbInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        // 既にTBL_DEFが存在する場合は初回起動ではないため、DB初期化を行わずに処理を終了します。
         if (tblDefTableChecker.existsTblDefTable()) {
             logger.info("TBL_DEFテーブルが既に存在するため、初期化処理をスキップします。");
             return;
         }
+
+        // 初回起動時のみ、事前生成済みSQLを使って初期テーブルと初期データを投入します。
         logger.info("TBL_DEFテーブルが存在しないため、初期テーブル／データの作成を行います。");
         dbInitializationService.initializeDatabase();
     }
 }
-

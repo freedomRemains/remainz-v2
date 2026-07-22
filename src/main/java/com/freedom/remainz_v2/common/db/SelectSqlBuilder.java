@@ -35,10 +35,12 @@ public class SelectSqlBuilder {
      */
     public String build(String tableName, List<Map<String, String>> columnDefs) {
 
+        // SELECT対象のカラム定義が無い場合はSQLを組み立てられないため、業務エラーとして扱います。
         if (columnDefs == null || columnDefs.isEmpty()) {
             throw new BusinessRuleViolationException(msg.get("msg.err.common.db.columnDefNotFound", tableName));
         }
 
+        // TBL_DEFの定義順を保ったまま、SELECT句とORDER BY句で共通利用するカラム一覧を組み立てます。
         StringBuilder columnPart = new StringBuilder();
         for (Map<String, String> columnDef : columnDefs) {
             if (columnPart.length() > 0) {
@@ -47,6 +49,7 @@ public class SelectSqlBuilder {
             columnPart.append(columnDef.get("FIELD_NAME"));
         }
 
+        // 取得順序を安定させるため、全カラムを列挙したORDER BY付きのSELECT文を返却します。
         return "SELECT " + columnPart + " FROM " + tableName + " ORDER BY " + columnPart + ";";
     }
 }

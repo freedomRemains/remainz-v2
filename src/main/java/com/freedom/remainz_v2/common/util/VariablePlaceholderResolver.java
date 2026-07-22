@@ -40,17 +40,20 @@ public final class VariablePlaceholderResolver {
             return null;
         }
 
+        // テンプレート文字列を走査するための状態を初期化し、置換結果の組み立てを開始する。
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(template);
         StringBuilder result = new StringBuilder();
         int lastEnd = 0;
 
         while (matcher.find()) {
 
+            // 現在のプレースホルダーに対応するキーを取得し、その直前までの固定文字列を連結する。
             String key = matcher.group(1);
             JsonNode valueNode = context.get(key);
 
             result.append(template, lastEnd, matcher.start());
 
+            // コンテキスト値が無い場合は警告を残してプレースホルダーを維持し、ある場合だけ実値へ置換する。
             if (valueNode == null || valueNode.isNull() || valueNode.asString().isEmpty()) {
                 logger.warn(msg.get("msg.warn.web.placeholderValueNotFound", key));
                 result.append(matcher.group());
@@ -60,6 +63,7 @@ public final class VariablePlaceholderResolver {
 
             lastEnd = matcher.end();
         }
+        // 最後のプレースホルダー以降に残った固定文字列を連結し、完成した文字列を返却する。
         result.append(template.substring(lastEnd));
 
         return result.toString();

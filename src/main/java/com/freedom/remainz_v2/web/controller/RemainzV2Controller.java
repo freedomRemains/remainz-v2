@@ -65,11 +65,13 @@ public class RemainzV2Controller {
 
     private String handleRequest(HttpServletRequest request, String requestKind, Model model) {
 
+        // 受信リクエストの内容を記録し、業務サービスへ渡す共通コンテキストを組み立てる
         logRequestInfo(request);
 
         ObjectNode context = buildContext(request, requestKind);
         JsonNode result = readAsObjectNode(requestHandlingService.execute(writeAsString(context)));
 
+        // 実行結果からセッションとModelを更新し、最後にレスポンス種別に応じたビュー名へ変換する
         storeAccountIdIfExists(request.getSession(), result);
         populateModel(result, model);
 
@@ -78,6 +80,7 @@ public class RemainzV2Controller {
 
     private void logRequestInfo(HttpServletRequest request) {
 
+        // リクエスト属性を収集し、サーバ内で付与された値も含めて追跡できるようにする
         StringBuilder log = new StringBuilder();
         log.append("[Attributes]").append(System.lineSeparator());
         for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
@@ -86,6 +89,7 @@ public class RemainzV2Controller {
                     .append(System.lineSeparator());
         }
 
+        // リクエストヘッダを収集し、クライアントやプロキシ経由の差異を確認しやすくする
         log.append("[Headers]").append(System.lineSeparator());
         for (Enumeration<String> names = request.getHeaderNames(); names.hasMoreElements();) {
             String name = names.nextElement();
@@ -93,6 +97,7 @@ public class RemainzV2Controller {
                     .append(System.lineSeparator());
         }
 
+        // リクエストパラメータを収集し、機微情報はマスクしたうえで入力内容を記録する
         log.append("[Parameters]").append(System.lineSeparator());
         for (Enumeration<String> names = request.getParameterNames(); names.hasMoreElements();) {
             String name = names.nextElement();
@@ -105,6 +110,7 @@ public class RemainzV2Controller {
 
     private ObjectNode buildContext(HttpServletRequest request, String requestKind) {
 
+        // リクエストパラメータをそのまま入力コンテキストへ転記し、後続サービスの入力値を揃える
         ObjectNode context = objectMapper.createObjectNode();
 
         for (Enumeration<String> names = request.getParameterNames(); names.hasMoreElements();) {
@@ -112,6 +118,7 @@ public class RemainzV2Controller {
             context.put(name, request.getParameter(name));
         }
 
+        // セッション保持中のアカウントIDと、今回のリクエストを識別する共通メタ情報を設定する
         String accountId = (String) request.getSession().getAttribute("accountId");
         if (accountId != null) {
             context.put("accountId", accountId);
@@ -142,6 +149,7 @@ public class RemainzV2Controller {
 
     private String resolveViewName(JsonNode result) {
 
+        // リダイレクト応答が要求されている場合は、Spring MVC向けのredirectプレフィックスを付ける
         String respKind = result.path("respKind").asString("");
         String destination = result.path("destination").asString("");
 
@@ -149,6 +157,7 @@ public class RemainzV2Controller {
             return "redirect:" + destination;
         }
 
+        // テンプレート解決時は.html拡張子を除去し、Thymeleafのビュー名に合わせる
         return destination.endsWith(".html") ? destination.substring(0, destination.length() - ".html".length())
                 : destination;
     }

@@ -30,6 +30,7 @@ public final class HtmlPageItemUtil {
     @SuppressWarnings("unchecked")
     public static List<Map<String, Object>> findRecords(List<Map<String, Object>> htmlPage, String itemKey) {
 
+        // 各パートを順に確認し、items配列を持つパートだけを画面表示項目の検索対象にする。
         for (Map<String, Object> part : htmlPage) {
 
             Object itemsObj = part.get("items");
@@ -37,6 +38,7 @@ public final class HtmlPageItemUtil {
                 continue;
             }
 
+            // パート内の各項目を調べ、指定したitemKeyに一致した時点で対応するrecordsを返却する。
             for (Object itemObj : items) {
                 Map<String, Object> item = (Map<String, Object>) itemObj;
                 if (itemKey.equals(item.get("itemKey"))) {

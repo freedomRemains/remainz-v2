@@ -56,10 +56,12 @@ public class DbSchemaSqlGenerator {
      */
     public void generateAll(Path dataDir, Path sqlDir) {
 
+        // TBL_DEFを読み込み、SQL生成対象となる全テーブルの定義を準備する
         Path tblDefFilePath = dataDir.resolve("TBL_DEF.txt");
         LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap =
                 tableDefLoader.load(tblDefFilePath);
 
+        // 出力先ディレクトリを確保したうえで、各テーブル向けのSQLファイルを順次生成する
         createDirectoryIfAbsent(sqlDir);
 
         for (Map.Entry<String, ArrayList<LinkedHashMap<String, String>>> entry : tableDefMap.entrySet()) {
@@ -73,6 +75,7 @@ public class DbSchemaSqlGenerator {
             writeSqlFile(sqlDir.resolve("SELECT_" + tableName + ".sql"),
                     selectSqlBuilder.build(tableName, columnDefs));
 
+            // データファイルが存在するテーブルについてのみ、INSERT文も生成して出力する
             Path dataFilePath = dataDir.resolve(tableName + ".txt");
             if (Files.exists(dataFilePath)) {
                 List<Map<String, String>> dataRows = new ArrayList<>(tsvTableFileReader.read(dataFilePath));
