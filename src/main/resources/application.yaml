@@ -1,4 +1,5 @@
-# Spring設定
+# SpringBootが持つ各設定は、環境ごとの「application-[環境名].yml」側に記載する。
+# 本ファイルは環境共通の設定と、有効化する環境(プロファイル)のデフォルト値のみを持つ。
 spring:
 
   # アプリケーション設定
@@ -7,9 +8,6 @@ spring:
     # アプリケーション名設定
     name: remainz-v2
 
-  # DB接続設定
-  datasource:
-    url: jdbc:sqlite:./taskallv2.db
-    driver-class-name: org.sqlite.JDBC
-    username:
-    password:
+  # 有効化する環境(プロファイル)。起動時に-Dspring.profiles.active等で上書き可能。
+  profiles:
+    active: local

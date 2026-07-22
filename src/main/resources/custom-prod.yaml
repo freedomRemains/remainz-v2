@@ -1,0 +1,10 @@
+# アプリ独自設定(本番環境)。
+# SpringBoot自体の設定は「application-prod.yml」側で持つ。
+remainz:
+
+  # DBメンテナンス機能(DB構成取得/DB構成更新)関連の設定
+  dbmng:
+
+    # DB構成取得で生成するTSV/SQLファイルの配置先ディレクトリ。
+    # 本番環境では永続ボリューム上のパスを想定し、環境変数での上書きを可能にする。
+    work-dir: ${REMAINZ_DBMNG_WORK_DIR:./dbmng-work}

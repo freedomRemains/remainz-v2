@@ -58,6 +58,17 @@ class InsertSqlBuilderTest {
         assertThat(insertSqlList).isEmpty();
     }
 
+    @Test
+    void 値中のシングルクオートは自動的にエスケープされること() {
+
+        List<Map<String, String>> columnDefs = List.of(buildColumnDef("ID", "INT"), buildColumnDef("NAME", "TEXT"));
+        List<Map<String, String>> dataRows = List.of(buildDataRow("ID", "1", "NAME", "it's not escaped"));
+
+        List<String> insertSqlList = insertSqlBuilder.build("SAMPLE", columnDefs, dataRows);
+
+        assertThat(insertSqlList).containsExactly("INSERT INTO SAMPLE (ID, NAME) VALUES (1, 'it''s not escaped');");
+    }
+
     private Map<String, String> buildColumnDef(String fieldName, String typeName) {
         Map<String, String> columnDef = new LinkedHashMap<>();
         columnDef.put("FIELD_NAME", fieldName);

@@ -16,10 +16,11 @@ import com.freedom.remainz_v2.common.util.MsgUtil;
  * </p>
  *
  * <p>
- * 移植元「remainz」の{@code GetTableInsertSqlService}と同様、値中のシングルクオートの
- * エスケープ({@code '}→{@code ''})は行いません。SQL文字列として直接埋め込むため、値中に
- * シングルクオートを含める場合はデータファイル側で予め{@code ''}のようにエスケープしておく
- * 必要があります(例: {@code PARTS_ITEM.txt}の{@code ITEM_QUERY}列)。
+ * 値中にシングルクオートが含まれる場合は、本クラス側で常に{@code '}→{@code ''}へ自動エスケープ
+ * します。手動で用意する{@code src/main/resources/db/data/}配下の seed データファイルも、
+ * DBメンテナンス機能(バックアップ/リストア)がライブDBの値をそのままTSVへ退避したものも、
+ * いずれもシングルクオートはエスケープ前の1文字表記のまま保持する運用のためです
+ * (例: {@code PARTS_ITEM.txt}の{@code ITEM_QUERY}列)。
  * </p>
  */
 public class InsertSqlBuilder {
@@ -88,11 +89,12 @@ public class InsertSqlBuilder {
             return columnValue;
         }
 
-        // 文字列系は"null"をNULLとして扱い、それ以外はシングルクオートで囲んで出力する
+        // 文字列系は"null"をNULLとして扱い、それ以外はシングルクオートをエスケープしたうえで
+        // シングルクオートで囲んで出力する
         if (columnValue == null || "null".equals(columnValue)) {
             return "NULL";
         }
-        return "'" + columnValue + "'";
+        return "'" + columnValue.replace("'", "''") + "'";
     }
 
     private String findColumnType(List<Map<String, String>> columnDefs, String columnName) {
