@@ -25,7 +25,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * 作業ディレクトリに配置されたテーブルデータファイル({@code 20_dbdata/<テーブル名>.txt})から、
+ * 作業ディレクトリに配置されたテーブルデータファイル({@code data/<テーブル名>.txt})から、
  * INSERT文を生成し、実行用SQLディレクトリへ書き出すサービスです。
  *
  * <p>
@@ -41,9 +41,8 @@ public class UpdateSqlByDataService implements ScriptElementService {
     /** 1回のINSERT文生成あたりの最大件数 */
     static final int BATCH_SIZE = 5000;
 
-    private static final String DBDEF_DIR_NAME = "10_dbdef";
-    private static final String DBDATA_DIR_NAME = "20_dbdata";
-    private static final String SQL_DIR_NAME = "30_sql";
+    private static final String DATA_DIR_NAME = "data";
+    private static final String SQL_DIR_NAME = "sql";
     private static final String TBL_DEF_FILE_NAME = "TBL_DEF.txt";
 
     private final DbMngProperties dbMngProperties;
@@ -78,7 +77,7 @@ public class UpdateSqlByDataService implements ScriptElementService {
 
         Path workDir = Path.of(dbMngProperties.getWorkDir());
         Map<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap =
-                tableDefLoader.load(workDir.resolve(DBDEF_DIR_NAME).resolve(TBL_DEF_FILE_NAME));
+                tableDefLoader.load(workDir.resolve(DATA_DIR_NAME).resolve(TBL_DEF_FILE_NAME));
 
         Path sqlDir = workDir.resolve(SQL_DIR_NAME);
         createDirectoryIfAbsent(sqlDir);
@@ -95,7 +94,7 @@ public class UpdateSqlByDataService implements ScriptElementService {
     private void writeInsertSql(Path workDir, Path sqlDir, String tableName,
             List<LinkedHashMap<String, String>> columnDefRows) {
 
-        Path dataFilePath = workDir.resolve(DBDATA_DIR_NAME).resolve(tableName + ".txt");
+        Path dataFilePath = workDir.resolve(DATA_DIR_NAME).resolve(tableName + ".txt");
         if (columnDefRows == null || !Files.exists(dataFilePath)) {
             // データファイルが存在しないテーブル(データ0件など)は、INSERT文の生成対象外とする
             return;

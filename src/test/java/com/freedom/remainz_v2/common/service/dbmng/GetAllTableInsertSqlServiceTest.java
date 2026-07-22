@@ -76,13 +76,13 @@ class GetAllTableInsertSqlServiceTest {
 
         String result = getAllTableInsertSqlService.execute("{\"tableNameList\":[\"ACCNT\"]}");
 
-        Path sqlFilePath = tempDir.resolve("30_sql").resolve("INSERT_ACCNT.sql");
+        Path sqlFilePath = tempDir.resolve("sql").resolve("INSERT_ACCNT.sql");
         assertThat(Files.readString(sqlFilePath, StandardCharsets.UTF_8))
                 .isEqualTo("INSERT 1;" + System.lineSeparator() + "INSERT 2;" + System.lineSeparator());
         verify(insertSqlBuilder, times(2)).build(eq("ACCNT"), eq(columnDefs), anyList(), eq(true));
 
         JsonNode resultNode = objectMapper.readTree(result);
-        assertThat(resultNode.path("insertSqlDirPath").asText()).isEqualTo(tempDir.resolve("30_sql").toString());
+        assertThat(resultNode.path("insertSqlDirPath").asText()).isEqualTo(tempDir.resolve("sql").toString());
     }
 
     private Map<String, String> buildColumnDef(String fieldName) {

@@ -55,13 +55,13 @@ class GetAllTableSelectSqlServiceTest {
 
         String result = getAllTableSelectSqlService.execute("{\"tableNameList\":[\"ACCNT\"]}");
 
-        Path sqlFilePath = tempDir.resolve("30_sql").resolve("SELECT_ACCNT.sql");
+        Path sqlFilePath = tempDir.resolve("sql").resolve("SELECT_ACCNT.sql");
         assertThat(Files.readString(sqlFilePath, StandardCharsets.UTF_8))
                 .isEqualTo("SELECT ACCNT_ID, ACCOUNT_NAME FROM ACCNT ORDER BY ACCNT_ID, ACCOUNT_NAME;"
                         + System.lineSeparator());
 
         JsonNode resultNode = objectMapper.readTree(result);
-        assertThat(resultNode.path("selectSqlDirPath").asText()).isEqualTo(tempDir.resolve("30_sql").toString());
+        assertThat(resultNode.path("selectSqlDirPath").asText()).isEqualTo(tempDir.resolve("sql").toString());
     }
 
     private Map<String, String> buildColumnDef(String fieldName) {

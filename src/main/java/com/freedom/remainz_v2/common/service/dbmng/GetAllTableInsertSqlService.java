@@ -39,7 +39,7 @@ public class GetAllTableInsertSqlService implements ScriptElementService {
     /** 1回のページング取得・INSERT文生成あたりの最大件数 */
     static final int BATCH_SIZE = 5000;
 
-    private static final String SQL_DIR_NAME = "30_sql";
+    private static final String SQL_DIR_NAME = "sql";
 
     private final LiveTableColumnDefLoader liveTableColumnDefLoader;
     private final RecordQueryService recordQueryService;

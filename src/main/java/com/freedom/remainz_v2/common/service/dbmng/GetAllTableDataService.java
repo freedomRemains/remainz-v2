@@ -37,7 +37,7 @@ public class GetAllTableDataService implements ScriptElementService {
     /** 1回のページング取得あたりの最大件数 */
     static final int BATCH_SIZE = 5000;
 
-    private static final String DBDATA_DIR_NAME = "20_dbdata";
+    private static final String DATA_DIR_NAME = "data";
 
     private final LiveTableColumnDefLoader liveTableColumnDefLoader;
     private final RecordQueryService recordQueryService;
@@ -71,7 +71,7 @@ public class GetAllTableDataService implements ScriptElementService {
         ObjectNode context = DbMngJsonUtil.readAsObjectNode(objectMapper, msg, contextJson);
         List<String> tableNameList = DbMngJsonUtil.readTableNameList(context);
 
-        Path dbDataDir = Path.of(dbMngProperties.getWorkDir()).resolve(DBDATA_DIR_NAME);
+        Path dbDataDir = Path.of(dbMngProperties.getWorkDir()).resolve(DATA_DIR_NAME);
         createDirectoryIfAbsent(dbDataDir);
 
         // テーブルごとにページング取得しながら、都度TSVファイルへ追記していく

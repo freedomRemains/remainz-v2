@@ -45,7 +45,7 @@ class GetAllTableDropSqlServiceTest {
 
         String result = getAllTableDropSqlService.execute("{\"tableNameList\":[\"ACCNT\",\"APROLE\"]}");
 
-        Path sqlDir = tempDir.resolve("30_sql");
+        Path sqlDir = tempDir.resolve("sql");
         assertThat(Files.readString(sqlDir.resolve("DROP_ACCNT.sql"), StandardCharsets.UTF_8))
                 .isEqualTo("DROP TABLE IF EXISTS ACCNT;" + System.lineSeparator());
         assertThat(Files.readString(sqlDir.resolve("DROP_APROLE.sql"), StandardCharsets.UTF_8))

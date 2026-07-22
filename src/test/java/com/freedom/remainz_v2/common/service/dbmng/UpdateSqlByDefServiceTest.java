@@ -71,7 +71,7 @@ class UpdateSqlByDefServiceTest {
         tableDefMap.put("ACCNT", accntDefs);
         tableDefMap.put("APROLE", aproleDefs);
 
-        Path tblDefFilePath = tempDir.resolve("10_dbdef").resolve("TBL_DEF.txt");
+        Path tblDefFilePath = tempDir.resolve("data").resolve("TBL_DEF.txt");
         when(tableDefLoader.load(eq(tblDefFilePath))).thenReturn(tableDefMap);
         when(dropTableSqlBuilder.build("ACCNT")).thenReturn("DROP ACCNT;");
         when(dropTableSqlBuilder.build("APROLE")).thenReturn("DROP APROLE;");
@@ -86,7 +86,7 @@ class UpdateSqlByDefServiceTest {
 
         String result = updateSqlByDefService.execute("{}");
 
-        Path sqlDir = tempDir.resolve("30_sql");
+        Path sqlDir = tempDir.resolve("sql");
         assertThat(Files.readString(sqlDir.resolve("DROP_ACCNT.sql"), StandardCharsets.UTF_8))
                 .isEqualTo("DROP ACCNT;" + System.lineSeparator());
         assertThat(Files.readString(sqlDir.resolve("CREATE_ACCNT.sql"), StandardCharsets.UTF_8))

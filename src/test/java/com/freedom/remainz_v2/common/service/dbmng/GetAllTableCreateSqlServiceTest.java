@@ -60,12 +60,12 @@ class GetAllTableCreateSqlServiceTest {
 
         String expectedSql = new CreateTableSqlBuilder(msg, new SqlitePrimaryKeyColumnSqlBuilder())
                 .build("ACCNT", columnDefs);
-        Path sqlFilePath = tempDir.resolve("30_sql").resolve("CREATE_ACCNT.sql");
+        Path sqlFilePath = tempDir.resolve("sql").resolve("CREATE_ACCNT.sql");
         assertThat(Files.readString(sqlFilePath, StandardCharsets.UTF_8))
                 .isEqualTo(expectedSql + System.lineSeparator());
 
         JsonNode resultNode = objectMapper.readTree(result);
-        assertThat(resultNode.path("createSqlDirPath").asText()).isEqualTo(tempDir.resolve("30_sql").toString());
+        assertThat(resultNode.path("createSqlDirPath").asText()).isEqualTo(tempDir.resolve("sql").toString());
     }
 
     private Map<String, String> buildColumnDef(String fieldName, String typeName, String allowNull, String keyDiv,

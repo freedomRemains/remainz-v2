@@ -27,7 +27,7 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * 作業ディレクトリに配置されたテーブル定義ファイル({@code 10_dbdef/TBL_DEF.txt})から、
+ * 作業ディレクトリに配置されたテーブル定義ファイル({@code data/TBL_DEF.txt})から、
  * DROP／CREATE／SELECT文を生成し、実行用SQLディレクトリへ書き出すサービスです。
  *
  * <p>
@@ -35,12 +35,18 @@ import tools.jackson.databind.node.ObjectNode;
  * 最初の段階として、スキーマ側(テーブルの再作成)のSQLのみを生成します。データ側(INSERT文)は
  * {@link UpdateSqlByDataService}が生成します。
  * </p>
+ *
+ * <p>
+ * {@code TBL_DEF.txt}はTBL_DEF自身も他のテーブルと同様に{@link GetAllTableDataService}が
+ * {@code data}ディレクトリへ書き出すため、専用のディレクトリは持たず、他のテーブルデータと
+ * 同じ{@code data}ディレクトリ配下のファイルをそのまま読み込みます。
+ * </p>
  */
 @Service
 public class UpdateSqlByDefService implements ScriptElementService {
 
-    private static final String DBDEF_DIR_NAME = "10_dbdef";
-    private static final String SQL_DIR_NAME = "30_sql";
+    private static final String DATA_DIR_NAME = "data";
+    private static final String SQL_DIR_NAME = "sql";
     private static final String TBL_DEF_FILE_NAME = "TBL_DEF.txt";
 
     private final DbMngProperties dbMngProperties;
@@ -77,7 +83,7 @@ public class UpdateSqlByDefService implements ScriptElementService {
         DbMngJsonUtil.readAsObjectNode(objectMapper, msg, contextJson);
 
         Path workDir = Path.of(dbMngProperties.getWorkDir());
-        Path tblDefFilePath = workDir.resolve(DBDEF_DIR_NAME).resolve(TBL_DEF_FILE_NAME);
+        Path tblDefFilePath = workDir.resolve(DATA_DIR_NAME).resolve(TBL_DEF_FILE_NAME);
 
         LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap =
                 tableDefLoader.load(tblDefFilePath);

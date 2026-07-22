@@ -70,12 +70,12 @@ class GetAllTableDataServiceTest {
 
         String result = getAllTableDataService.execute("{\"tableNameList\":[\"ACCNT\"]}");
 
-        Path dataFilePath = tempDir.resolve("20_dbdata").resolve("ACCNT.txt");
+        Path dataFilePath = tempDir.resolve("data").resolve("ACCNT.txt");
         verify(tsvTableFileWriter).append(eq(dataFilePath), eq(firstBatch));
         verify(tsvTableFileWriter).append(eq(dataFilePath), eq(secondBatch));
 
         JsonNode resultNode = objectMapper.readTree(result);
-        assertThat(resultNode.path("dbDataDirPath").asText()).isEqualTo(tempDir.resolve("20_dbdata").toString());
+        assertThat(resultNode.path("dbDataDirPath").asText()).isEqualTo(tempDir.resolve("data").toString());
     }
 
     @Test
@@ -88,7 +88,7 @@ class GetAllTableDataServiceTest {
 
         getAllTableDataService.execute("{\"tableNameList\":[\"ACCNT\"]}");
 
-        verify(tsvTableFileWriter, never()).append(eq(tempDir.resolve("20_dbdata").resolve("ACCNT.txt")),
+        verify(tsvTableFileWriter, never()).append(eq(tempDir.resolve("data").resolve("ACCNT.txt")),
                 org.mockito.ArgumentMatchers.anyList());
     }
 

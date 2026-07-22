@@ -32,7 +32,7 @@ import tools.jackson.databind.node.ObjectNode;
 @Service
 public class GetAllTableSelectSqlService implements ScriptElementService {
 
-    private static final String SQL_DIR_NAME = "30_sql";
+    private static final String SQL_DIR_NAME = "sql";
 
     private final LiveTableColumnDefLoader liveTableColumnDefLoader;
     private final DbMngProperties dbMngProperties;

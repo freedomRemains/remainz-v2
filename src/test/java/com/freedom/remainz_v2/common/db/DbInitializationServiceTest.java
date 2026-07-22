@@ -38,7 +38,8 @@ class DbInitializationServiceTest {
 
         dbInitializationService.initializeDatabase();
 
-        // 22テーブル分のDROP・CREATEと、データファイルが存在するテーブル分(672レコード)のINSERTが実行される
-        verify(jdbcTemplate, times(22 + 22 + 672)).execute(anyString());
+        // 22テーブル分のDROP・CREATEと、データファイルが存在するテーブル分(671レコード)のINSERTが実行される
+        // (GetAllTableDefServiceの削除に伴いSCR_ELMのレコードが1件減ったため、672から671へ変更)
+        verify(jdbcTemplate, times(22 + 22 + 671)).execute(anyString());
     }
 }

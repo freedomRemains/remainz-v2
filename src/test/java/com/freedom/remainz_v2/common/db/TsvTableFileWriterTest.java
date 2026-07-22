@@ -28,7 +28,7 @@ class TsvTableFileWriterTest {
         assertThat(Files.readString(filePath, StandardCharsets.UTF_8))
                 .isEqualTo("ACCNT_ID\tACCOUNT_NAME" + System.lineSeparator()
                         + "1\tゲスト" + System.lineSeparator()
-                        + "2\t" + System.lineSeparator());
+                        + "2\tnull" + System.lineSeparator());
     }
 
     @Test

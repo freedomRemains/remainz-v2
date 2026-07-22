@@ -29,7 +29,7 @@ import tools.jackson.databind.node.ObjectNode;
 @Service
 public class GetAllTableDropSqlService implements ScriptElementService {
 
-    private static final String SQL_DIR_NAME = "30_sql";
+    private static final String SQL_DIR_NAME = "sql";
 
     private final DbMngProperties dbMngProperties;
     private final DropTableSqlBuilder dropTableSqlBuilder;

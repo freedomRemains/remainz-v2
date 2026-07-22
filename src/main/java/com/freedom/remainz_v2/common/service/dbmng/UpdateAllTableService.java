@@ -16,7 +16,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 /**
  * {@link UpdateSqlByDefService}/{@link UpdateSqlByDataService}が生成したSQLファイル一式
- * ({@code 30_sql}配下)を、DROP→CREATE→INSERTの順に実行するサービスです。
+ * ({@code sql}配下)を、DROP→CREATE→INSERTの順に実行するサービスです。
  *
  * <p>
  * 移植元「remainz」の{@code UpdateAllTableService}に相当します。実行順は{@code DbInitializer}/
@@ -28,7 +28,7 @@ import tools.jackson.databind.node.ObjectNode;
 @Service
 public class UpdateAllTableService implements ScriptElementService {
 
-    private static final String SQL_DIR_NAME = "30_sql";
+    private static final String SQL_DIR_NAME = "sql";
 
     private final DbMngProperties dbMngProperties;
     private final SqlFileExecutionService sqlFileExecutionService;

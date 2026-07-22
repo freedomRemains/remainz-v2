@@ -65,7 +65,7 @@ class UpdateSqlByDataServiceTest {
         when(dbMngProperties.getWorkDir()).thenReturn(tempDir.toString());
 
         Path workDir = tempDir;
-        Path accntDataFilePath = workDir.resolve("20_dbdata").resolve("ACCNT.txt");
+        Path accntDataFilePath = workDir.resolve("data").resolve("ACCNT.txt");
         Files.createDirectories(accntDataFilePath.getParent());
         Files.writeString(accntDataFilePath, "ACCNT_ID\n1\n", StandardCharsets.UTF_8);
 
@@ -74,7 +74,7 @@ class UpdateSqlByDataServiceTest {
         LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap = new LinkedHashMap<>();
         tableDefMap.put("ACCNT", accntDefs);
         tableDefMap.put("APROLE", aproleDefs);
-        when(tableDefLoader.load(eq(workDir.resolve("10_dbdef").resolve("TBL_DEF.txt")))).thenReturn(tableDefMap);
+        when(tableDefLoader.load(eq(workDir.resolve("data").resolve("TBL_DEF.txt")))).thenReturn(tableDefMap);
 
         ArrayList<LinkedHashMap<String, String>> dataRows = new ArrayList<>(List.of(buildDataRow("1")));
         when(tsvTableFileReader.read(eq(accntDataFilePath))).thenReturn(dataRows);
@@ -83,11 +83,11 @@ class UpdateSqlByDataServiceTest {
 
         String result = updateSqlByDataService.execute("{\"tableNameList\":[\"ACCNT\",\"APROLE\"]}");
 
-        Path sqlDir = workDir.resolve("30_sql");
+        Path sqlDir = workDir.resolve("sql");
         assertThat(Files.readString(sqlDir.resolve("INSERT_ACCNT.sql"), StandardCharsets.UTF_8))
                 .isEqualTo("INSERT ACCNT;" + System.lineSeparator());
         assertThat(sqlDir.resolve("INSERT_APROLE.sql")).doesNotExist();
-        verify(tsvTableFileReader, never()).read(eq(workDir.resolve("20_dbdata").resolve("APROLE.txt")));
+        verify(tsvTableFileReader, never()).read(eq(workDir.resolve("data").resolve("APROLE.txt")));
 
         JsonNode resultNode = objectMapper.readTree(result);
         assertThat(resultNode.path("insertSqlDirPath").asText()).isEqualTo(sqlDir.toString());
@@ -99,14 +99,14 @@ class UpdateSqlByDataServiceTest {
         when(dbMngProperties.getWorkDir()).thenReturn(tempDir.toString());
 
         Path workDir = tempDir;
-        Path accntDataFilePath = workDir.resolve("20_dbdata").resolve("ACCNT.txt");
+        Path accntDataFilePath = workDir.resolve("data").resolve("ACCNT.txt");
         Files.createDirectories(accntDataFilePath.getParent());
         Files.writeString(accntDataFilePath, "ACCNT_ID\n1\n", StandardCharsets.UTF_8);
 
         ArrayList<LinkedHashMap<String, String>> accntDefs = new ArrayList<>(List.of(buildColumnDef("ACCNT_ID")));
         LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap = new LinkedHashMap<>();
         tableDefMap.put("ACCNT", accntDefs);
-        when(tableDefLoader.load(eq(workDir.resolve("10_dbdef").resolve("TBL_DEF.txt")))).thenReturn(tableDefMap);
+        when(tableDefLoader.load(eq(workDir.resolve("data").resolve("TBL_DEF.txt")))).thenReturn(tableDefMap);
 
         ArrayList<LinkedHashMap<String, String>> dataRows = IntStream.range(0, UpdateSqlByDataService.BATCH_SIZE + 1)
                 .collect(ArrayList::new,
@@ -118,7 +118,7 @@ class UpdateSqlByDataServiceTest {
 
         updateSqlByDataService.execute("{\"tableNameList\":[\"ACCNT\"]}");
 
-        Path insertSqlFilePath = workDir.resolve("30_sql").resolve("INSERT_ACCNT.sql");
+        Path insertSqlFilePath = workDir.resolve("sql").resolve("INSERT_ACCNT.sql");
         assertThat(Files.readString(insertSqlFilePath, StandardCharsets.UTF_8))
                 .isEqualTo("INSERT BATCH1;" + System.lineSeparator()
                         + "INSERT BATCH2;" + System.lineSeparator());

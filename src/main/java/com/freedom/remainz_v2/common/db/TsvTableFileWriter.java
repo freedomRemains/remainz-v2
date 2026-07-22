@@ -21,6 +21,21 @@ import com.freedom.remainz_v2.common.util.MsgUtil;
  * 取得したテーブル定義・テーブルデータをファイルへ退避する際に使用します。大量データを一度に
  * メモリへ保持しないよう、1レコードずつ追記できる{@link #append(Path, List)}も提供します。
  * </p>
+ *
+ * <p>
+ * {@code write}/{@code append}の引数型は{@code List<? extends Map<String, String>>}ですが、
+ * 呼び出し側は{@code ArrayList<LinkedHashMap<String, String>>}(=
+ * {@link RecordQueryService#select}の戻り値の型)を渡す前提です。TSVの列順・行順は
+ * {@code SELECT}文の記述順・{@code ORDER BY}順をそのまま維持する必要があるため、
+ * 順序を保証しない{@code HashMap}等を渡さないよう注意してください。
+ * </p>
+ *
+ * <p>
+ * 値が{@code null}のカラムは、空文字列ではなく文字列{@code "null"}として書き出します。
+ * {@link TsvTableFileReader}で読み込んだ空文字列は「値が空文字列であること」を表すため、
+ * {@code null}と空文字列を区別できるようにするためです。この文字列{@code "null"}は
+ * {@link InsertSqlBuilder}が読み取り、INSERT文生成時に{@code NULL}として扱います。
+ * </p>
  */
 public class TsvTableFileWriter {
 
@@ -87,8 +102,10 @@ public class TsvTableFileWriter {
 
     private void writeRows(BufferedWriter writer, List<? extends Map<String, String>> rows) throws IOException {
         for (Map<String, String> row : rows) {
+            // nullを空文字列にしてしまうと、実際の空文字列の値と区別できなくなるため、
+            // 文字列"null"として書き出す(InsertSqlBuilderが読み取りNULLへ変換する)
             writer.write(String.join("\t", row.values().stream()
-                    .map(value -> value == null ? "" : value)
+                    .map(value -> value == null ? "null" : value)
                     .toList()));
             writer.newLine();
         }

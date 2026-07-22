@@ -47,7 +47,7 @@ class UpdateAllTableServiceTest {
 
         String result = updateAllTableService.execute("{\"tableNameList\":[\"ACCNT\",\"APROLE\"]}");
 
-        Path sqlDir = Path.of("work").resolve("30_sql");
+        Path sqlDir = Path.of("work").resolve("sql");
         InOrder inOrder = inOrder(sqlFileExecutionService);
         inOrder.verify(sqlFileExecutionService).execute(sqlDir.resolve("DROP_ACCNT.sql"));
         inOrder.verify(sqlFileExecutionService).execute(sqlDir.resolve("DROP_APROLE.sql"));
