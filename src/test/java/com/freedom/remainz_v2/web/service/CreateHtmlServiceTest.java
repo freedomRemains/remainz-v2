@@ -149,4 +149,48 @@ class CreateHtmlServiceTest {
                 "{\"requestKind\":\"GET\",\"requestUri\":\"/remainz-v2/service/unknown.html\"}"))
                 .isInstanceOf(ApplicationInternalException.class);
     }
+
+    @Test
+    void errMsgKeyが未指定の場合は0がデフォルト設定されプレースホルダーが解決されること() {
+
+        LinkedHashMap<String, String> row = pageRow("1000203", "1001101", "エラーメッセージ一覧領域",
+                "errMsgList", "SELECT ERR_MSG FROM ERR_MSG WHERE ERR_MSG_ID = #{errMsgKey}");
+
+        when(recordQueryService.select(eq(PAGE_SQL), eq(List.of("/remainz-v2/service/myPage.html"))))
+                .thenReturn(new ArrayList<>(List.of(row)));
+        when(recordQueryService.select(eq("SELECT ERR_MSG FROM ERR_MSG WHERE ERR_MSG_ID = 0")))
+                .thenReturn(new ArrayList<>());
+
+        String result = createHtmlService.execute(
+                "{\"requestKind\":\"GET\",\"requestUri\":\"/remainz-v2/service/myPage.html\"}");
+
+        JsonNode node = JsonMapper.builder().build().readTree(result);
+        assertThat(node.path("htmlPage").get(0).path("items").get(0).path("records")).isEmpty();
+    }
+
+    @Test
+    void respKindとdestinationがコンテキストに既に存在する場合は上書きしないこと() {
+
+        LinkedHashMap<String, String> row =
+                pageRow("1000201", "1000001", "システム名", "systemName",
+                        "SELECT GNR_VAL FROM GNR_KEY_VAL WHERE GNR_KEY = 'systemName'");
+        row.put("RESP_KIND_POST", "redirect");
+        row.put("DESTINATION_POST", "myPage.html");
+
+        when(recordQueryService.select(eq(PAGE_SQL), eq(List.of("/remainz-v2/service/myPage.html"))))
+                .thenReturn(new ArrayList<>(List.of(row)));
+
+        LinkedHashMap<String, String> systemNameRecord = new LinkedHashMap<>();
+        systemNameRecord.put("GNR_VAL", "Remainz");
+        when(recordQueryService.select(eq("SELECT GNR_VAL FROM GNR_KEY_VAL WHERE GNR_KEY = 'systemName'")))
+                .thenReturn(new ArrayList<>(List.of(systemNameRecord)));
+
+        String result = createHtmlService.execute(
+                "{\"requestKind\":\"POST\",\"requestUri\":\"/remainz-v2/service/myPage.html\","
+                        + "\"respKind\":\"redirect\",\"destination\":\"myPage.html?errMsgKey=5\"}");
+
+        JsonNode node = JsonMapper.builder().build().readTree(result);
+        assertThat(node.path("respKind").asString()).isEqualTo("redirect");
+        assertThat(node.path("destination").asString()).isEqualTo("myPage.html?errMsgKey=5");
+    }
 }

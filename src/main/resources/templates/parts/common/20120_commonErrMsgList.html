@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="body" class="1001101">
+        <div class="p-2"
+             th:if="${not #lists.isEmpty(T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'errMsgList'))}">
+            <div th:each="errMsg : ${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'errMsgList')}">
+                <span style="color:red;" th:text="${errMsg.ERR_MSG}">Error</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

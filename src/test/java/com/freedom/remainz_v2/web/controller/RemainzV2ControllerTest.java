@@ -3,6 +3,7 @@ package com.freedom.remainz_v2.web.controller;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -36,7 +37,10 @@ class RemainzV2ControllerTest {
 
         when(requestHandlingService.execute(anyString())).thenReturn(
                 "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
-                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"items\":[]}]}");
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
 
         mockMvc.perform(get("/remainz-v2/service/top.html"))
                 .andExpect(status().isOk())
@@ -54,5 +58,34 @@ class RemainzV2ControllerTest {
         mockMvc.perform(get("/remainz-v2/service/top.html"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:top.html"));
+    }
+
+    @Test
+    void マイページのGETリクエストで応答種別forwardの場合はビュー名が拡張子無しで解決されること() throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000201\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
+
+        mockMvc.perform(get("/remainz-v2/service/myPage.html"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("10000_contents"));
+    }
+
+    @Test
+    void マイページのPOSTリクエストで応答種別redirectの場合はredirectプレフィックス付きのビュー名が返却されること()
+            throws Exception {
+
+        when(requestHandlingService.execute(anyString()))
+                .thenReturn("{\"respKind\":\"redirect\",\"destination\":\"myPage.html?errMsgKey=5\"}");
+
+        mockMvc.perform(post("/remainz-v2/service/myPage.html")
+                        .param("MAIL_ADDRESS", "wrong@account.com")
+                        .param("PASSWORD", "wrong"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:myPage.html?errMsgKey=5"));
     }
 }

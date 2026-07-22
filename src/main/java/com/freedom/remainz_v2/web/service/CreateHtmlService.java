@@ -64,6 +64,14 @@ public class CreateHtmlService implements ScriptElementService {
         String requestUri = context.path("requestUri").asString("");
         String requestKind = context.path("requestKind").asString("");
 
+        // errMsgKeyはPARTS_ITEM.ITEM_QUERY(例: errMsgList)のプレースホルダとして参照されるが、
+        // ログイン失敗などPRGパターンを経由しない通常の画面表示では入力JSONに含まれない。
+        // 未設定のままだとVariablePlaceholderResolverの解決に失敗するため、
+        // 「エラー無し」を意味するデフォルト値"0"を補っておく。
+        if (context.path("errMsgKey").asString("").isBlank()) {
+            context.put("errMsgKey", "0");
+        }
+
         List<LinkedHashMap<String, String>> pageRows = recordQueryService.select(PAGE_SQL, List.of(requestUri));
         if (pageRows.isEmpty()) {
             throw new ApplicationInternalException(msg.get("msg.err.web.pageNotFound", requestUri));
@@ -71,9 +79,20 @@ public class CreateHtmlService implements ScriptElementService {
 
         ObjectNode output = objectMapper.createObjectNode();
         output.set("htmlPage", buildHtmlPage(pageRows, context));
-        output.put("respKind", pageRows.get(0).get("RESP_KIND_" + requestKind));
-        output.put("destination", VariablePlaceholderResolver.resolve(
-                pageRows.get(0).get("DESTINATION_" + requestKind), context, msg));
+
+        // respKind/destinationは通常HTML_PAGEの定義値から決定するが、LoginServiceのように
+        // 同一SCR内で先行実行されるサービスがPRGパターン(認証失敗時のリダイレクト等)により
+        // 既に入力JSONへrespKind/destinationを設定済みの場合がある。その場合は本サービスの
+        // デフォルト値で上書きせず、先行サービスが決定した値をそのまま後続へ引き継ぐ。
+        String existingRespKind = context.path("respKind").asString("");
+        output.put("respKind", existingRespKind.isBlank()
+                ? pageRows.get(0).get("RESP_KIND_" + requestKind)
+                : existingRespKind);
+
+        String existingDestination = context.path("destination").asString("");
+        output.put("destination", existingDestination.isBlank()
+                ? VariablePlaceholderResolver.resolve(pageRows.get(0).get("DESTINATION_" + requestKind), context, msg)
+                : existingDestination);
 
         return writeAsString(output);
     }
