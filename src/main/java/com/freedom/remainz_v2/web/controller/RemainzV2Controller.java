@@ -63,6 +63,53 @@ public class RemainzV2Controller {
         return handleRequest(request, "POST", model);
     }
 
+    // 以下、DBメンテナンス機能の画面群。いずれもDBレコード駆動の汎用処理(handleRequest)へ
+    // 委譲するのみで、画面固有の業務ロジックはコントローラ側に持たない
+    @GetMapping("/remainz-v2/service/dbMainte.html")
+    public String getDbMainte(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @GetMapping("/remainz-v2/service/tableDefRef.html")
+    public String getTableDefRef(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @GetMapping("/remainz-v2/service/tableDataMainte.html")
+    public String getTableDataMainte(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @GetMapping("/remainz-v2/service/updateDbConfirm.html")
+    public String getUpdateDbConfirm(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @PostMapping("/remainz-v2/service/updateDbConfirm.html")
+    public String postUpdateDbConfirm(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
+    }
+
+    @GetMapping("/remainz-v2/service/getDbConfirm.html")
+    public String getGetDbConfirm(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @PostMapping("/remainz-v2/service/getDbConfirm.html")
+    public String postGetDbConfirm(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
+    }
+
+    @GetMapping("/remainz-v2/service/updateDbComplete.html")
+    public String getUpdateDbComplete(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @GetMapping("/remainz-v2/service/getDbComplete.html")
+    public String getGetDbComplete(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
     private String handleRequest(HttpServletRequest request, String requestKind, Model model) {
 
         // 受信リクエストの内容を記録し、業務サービスへ渡す共通コンテキストを組み立てる
@@ -116,6 +163,16 @@ public class RemainzV2Controller {
         for (Enumeration<String> names = request.getParameterNames(); names.hasMoreElements();) {
             String name = names.nextElement();
             context.put(name, request.getParameter(name));
+        }
+
+        // ページング用パラメータ(limit/offset)は、初回アクセス時にリンクへ付与されないことがあるため、
+        // 未指定の場合はここで既定値を補う(#{limit}/#{offset}のようなSQLプレースホルダーが
+        // 未解決のまま実行され、SQLエラーになることを防ぐ)
+        if (context.get("limit") == null) {
+            context.put("limit", "10");
+        }
+        if (context.get("offset") == null) {
+            context.put("offset", "0");
         }
 
         // セッション保持中のアカウントIDと、今回のリクエストを識別する共通メタ情報を設定する
