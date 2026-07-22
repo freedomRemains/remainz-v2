@@ -25,8 +25,10 @@
                           th:text="${tableDefList[0].TABLE_LOGICAL_NAME + '(' + tableDefList[0].TABLE_NAME + ')'}">table</span><br />
                 </label>
             </div>
-            <div class="scrollArea">
-                <table class="table table-bordered table-striped table-hover table-responsive text-nowrap">
+            <!--/* table-responsiveはtable要素ではなく、それを囲むdiv要素に付与しないと
+                   横スクロールが有効にならない(Bootstrapの仕様)ため、scrollAreaの方へ付与する */-->
+            <div class="scrollArea table-responsive">
+                <table class="table table-bordered table-striped table-hover text-nowrap">
                     <thead class="table-success">
                         <tr>
                             <th class="align-middle px-2 py-0" th:each="def : ${tableDefList}"
