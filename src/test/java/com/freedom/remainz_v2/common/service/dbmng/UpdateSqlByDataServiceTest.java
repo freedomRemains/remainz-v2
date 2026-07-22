@@ -78,7 +78,7 @@ class UpdateSqlByDataServiceTest {
 
         ArrayList<LinkedHashMap<String, String>> dataRows = new ArrayList<>(List.of(buildDataRow("1")));
         when(tsvTableFileReader.read(eq(accntDataFilePath))).thenReturn(dataRows);
-        when(insertSqlBuilder.build(eq("ACCNT"), eq(new ArrayList<Map<String, String>>(accntDefs)), anyList(), eq(true)))
+        when(insertSqlBuilder.build(eq("ACCNT"), eq(new ArrayList<Map<String, String>>(accntDefs)), anyList()))
                 .thenReturn(List.of("INSERT ACCNT;"));
 
         String result = updateSqlByDataService.execute("{\"tableNameList\":[\"ACCNT\",\"APROLE\"]}");
@@ -113,7 +113,7 @@ class UpdateSqlByDataServiceTest {
                         (rows, index) -> rows.add(buildDataRow(String.valueOf(index + 1))),
                         ArrayList::addAll);
         when(tsvTableFileReader.read(eq(accntDataFilePath))).thenReturn(dataRows);
-        when(insertSqlBuilder.build(eq("ACCNT"), eq(new ArrayList<Map<String, String>>(accntDefs)), anyList(), eq(true)))
+        when(insertSqlBuilder.build(eq("ACCNT"), eq(new ArrayList<Map<String, String>>(accntDefs)), anyList()))
                 .thenReturn(List.of("INSERT BATCH1;"), List.of("INSERT BATCH2;"));
 
         updateSqlByDataService.execute("{\"tableNameList\":[\"ACCNT\"]}");
@@ -123,7 +123,7 @@ class UpdateSqlByDataServiceTest {
                 .isEqualTo("INSERT BATCH1;" + System.lineSeparator()
                         + "INSERT BATCH2;" + System.lineSeparator());
         verify(insertSqlBuilder, times(2)).build(eq("ACCNT"), eq(new ArrayList<Map<String, String>>(accntDefs)),
-                anyList(), eq(true));
+                anyList());
     }
 
     private LinkedHashMap<String, String> buildColumnDef(String fieldName) {

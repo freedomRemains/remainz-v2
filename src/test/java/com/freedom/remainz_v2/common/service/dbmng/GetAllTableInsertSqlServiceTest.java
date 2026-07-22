@@ -71,7 +71,7 @@ class GetAllTableInsertSqlServiceTest {
                 .thenReturn(firstBatch);
         when(recordQueryService.select(eq("SELECT ACCNT_ID FROM ACCNT ORDER BY ACCNT_ID LIMIT 5000 OFFSET 5000")))
                 .thenReturn(secondBatch);
-        when(insertSqlBuilder.build(eq("ACCNT"), eq(columnDefs), anyList(), eq(true)))
+        when(insertSqlBuilder.build(eq("ACCNT"), eq(columnDefs), anyList()))
                 .thenReturn(List.of("INSERT 1;"), List.of("INSERT 2;"));
 
         String result = getAllTableInsertSqlService.execute("{\"tableNameList\":[\"ACCNT\"]}");
@@ -79,7 +79,7 @@ class GetAllTableInsertSqlServiceTest {
         Path sqlFilePath = tempDir.resolve("sql").resolve("INSERT_ACCNT.sql");
         assertThat(Files.readString(sqlFilePath, StandardCharsets.UTF_8))
                 .isEqualTo("INSERT 1;" + System.lineSeparator() + "INSERT 2;" + System.lineSeparator());
-        verify(insertSqlBuilder, times(2)).build(eq("ACCNT"), eq(columnDefs), anyList(), eq(true));
+        verify(insertSqlBuilder, times(2)).build(eq("ACCNT"), eq(columnDefs), anyList());
 
         JsonNode resultNode = objectMapper.readTree(result);
         assertThat(resultNode.path("insertSqlDirPath").asText()).isEqualTo(tempDir.resolve("sql").toString());

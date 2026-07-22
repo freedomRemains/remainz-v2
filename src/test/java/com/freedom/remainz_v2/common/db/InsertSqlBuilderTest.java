@@ -59,23 +59,12 @@ class InsertSqlBuilderTest {
     }
 
     @Test
-    void escapeSingleQuotesを指定しない場合は値中のシングルクオートをそのまま出力すること() {
-
-        List<Map<String, String>> columnDefs = List.of(buildColumnDef("ID", "INT"), buildColumnDef("NAME", "TEXT"));
-        List<Map<String, String>> dataRows = List.of(buildDataRow("ID", "1", "NAME", "it''s escaped"));
-
-        List<String> insertSqlList = insertSqlBuilder.build("SAMPLE", columnDefs, dataRows);
-
-        assertThat(insertSqlList).containsExactly("INSERT INTO SAMPLE (ID, NAME) VALUES (1, 'it''s escaped');");
-    }
-
-    @Test
-    void escapeSingleQuotesにtrueを指定した場合は値中のシングルクオートを自動エスケープすること() {
+    void 値中のシングルクオートは自動的にエスケープされること() {
 
         List<Map<String, String>> columnDefs = List.of(buildColumnDef("ID", "INT"), buildColumnDef("NAME", "TEXT"));
         List<Map<String, String>> dataRows = List.of(buildDataRow("ID", "1", "NAME", "it's not escaped"));
 
-        List<String> insertSqlList = insertSqlBuilder.build("SAMPLE", columnDefs, dataRows, true);
+        List<String> insertSqlList = insertSqlBuilder.build("SAMPLE", columnDefs, dataRows);
 
         assertThat(insertSqlList).containsExactly("INSERT INTO SAMPLE (ID, NAME) VALUES (1, 'it''s not escaped');");
     }

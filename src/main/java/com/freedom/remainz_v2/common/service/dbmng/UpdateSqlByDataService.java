@@ -113,7 +113,7 @@ public class UpdateSqlByDataService implements ScriptElementService {
             List<Map<String, String>> batch = dataRows.subList(fromIndex, toIndex);
 
             // ライブDBの値はseedデータのように事前エスケープされていないため、自動エスケープを有効にする
-            List<String> insertSqlList = insertSqlBuilder.build(tableName, columnDefs, batch, true);
+            List<String> insertSqlList = insertSqlBuilder.build(tableName, columnDefs, batch);
             appendSqlFile(insertSqlFilePath, String.join(System.lineSeparator(), insertSqlList));
         }
     }

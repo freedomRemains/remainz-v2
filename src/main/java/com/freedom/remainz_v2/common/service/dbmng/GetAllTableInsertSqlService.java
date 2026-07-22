@@ -104,7 +104,7 @@ public class GetAllTableInsertSqlService implements ScriptElementService {
             }
 
             // ライブDBの値はseedデータのように事前エスケープされていないため、自動エスケープを有効にする
-            List<String> insertSqlList = insertSqlBuilder.build(tableName, columnDefs, new ArrayList<>(batch), true);
+            List<String> insertSqlList = insertSqlBuilder.build(tableName, columnDefs, new ArrayList<>(batch));
             appendSqlFile(insertSqlFilePath, String.join(System.lineSeparator(), insertSqlList));
 
             if (batch.size() < BATCH_SIZE) {
