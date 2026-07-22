@@ -55,11 +55,13 @@ public class ErrMsgService {
      */
     public String getErrMsgKey(String sessionId, String accountId, String gnrKeyValId) {
 
+        // 汎用キー値マスタからエラーメッセージ本文を取得し、未登録ならダミー値を返却する
         List<LinkedHashMap<String, String>> gnrValRows = recordQueryService.select(GNR_VAL_SQL, List.of(gnrKeyValId));
         if (gnrValRows.isEmpty()) {
             return "0";
         }
 
+        // 取得したメッセージをERR_MSGへ登録し、採番されたエラーメッセージIDを控える
         String errMsg = gnrValRows.get(0).get("GNR_VAL");
         String currentDate = LocalDateTime.now().format(DATE_FORMAT);
 

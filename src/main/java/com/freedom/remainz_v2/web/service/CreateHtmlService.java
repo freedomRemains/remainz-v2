@@ -59,6 +59,7 @@ public class CreateHtmlService implements ScriptElementService {
     @Override
     public String execute(String contextJson) {
 
+        // 入力JSONから画面生成に必要なリクエスト情報を取り出して処理の起点にする
         ObjectNode context = readAsObjectNode(contextJson);
 
         String requestUri = context.path("requestUri").asString("");
@@ -77,6 +78,7 @@ public class CreateHtmlService implements ScriptElementService {
             throw new ApplicationInternalException(msg.get("msg.err.web.pageNotFound", requestUri));
         }
 
+        // 画面パーツ群をhtmlPageへ構築し、後続のビュー解決に必要な応答情報も出力へまとめる
         ObjectNode output = objectMapper.createObjectNode();
         output.set("htmlPage", buildHtmlPage(pageRows, context));
 
@@ -99,6 +101,7 @@ public class CreateHtmlService implements ScriptElementService {
 
     private ArrayNode buildHtmlPage(List<LinkedHashMap<String, String>> pageRows, ObjectNode context) {
 
+        // PARTS_IN_PAGE単位で画面パーツを束ねるための配列と検索用マップを初期化する
         ArrayNode htmlPage = objectMapper.createArrayNode();
         Map<String, ObjectNode> partsInPageById = new LinkedHashMap<>();
 
@@ -107,6 +110,7 @@ public class CreateHtmlService implements ScriptElementService {
             String partsInPageId = row.get("PARTS_IN_PAGE_ID");
             ObjectNode partsInPage = partsInPageById.get(partsInPageId);
             if (partsInPage == null) {
+                // 初出のPARTS_IN_PAGE_IDごとに画面パーツの枠を生成し、戻り値配列へ登録する
                 partsInPage = objectMapper.createObjectNode();
                 partsInPage.put("partsInPageId", partsInPageId);
                 partsInPage.put("htmlPartsId", row.get("HTML_PARTS_ID"));
@@ -118,6 +122,7 @@ public class CreateHtmlService implements ScriptElementService {
 
             String itemQuery = row.get("ITEM_QUERY");
             if (itemQuery != null && !itemQuery.isBlank()) {
+                // 各画面表示項目のクエリを実行し、対象パーツ配下のitems配列へネストして保持する
                 ObjectNode item = objectMapper.createObjectNode();
                 item.put("itemKey", row.get("ITEM_KEY"));
                 item.set("records", selectItem(itemQuery, context));
@@ -130,9 +135,11 @@ public class CreateHtmlService implements ScriptElementService {
 
     private ArrayNode selectItem(String itemQuery, ObjectNode context) {
 
+        // プレースホルダを解決した項目クエリを実行し、画面表示用レコード一覧を取得する
         String sql = VariablePlaceholderResolver.resolve(itemQuery, context, msg);
         List<LinkedHashMap<String, String>> recordList = recordQueryService.select(sql);
 
+        // SELECT結果をJSON配列へ詰め替えつつ、値側に残るプレースホルダも画面表示用に解決する
         ArrayNode records = objectMapper.createArrayNode();
         for (LinkedHashMap<String, String> record : recordList) {
             ObjectNode recordNode = objectMapper.createObjectNode();

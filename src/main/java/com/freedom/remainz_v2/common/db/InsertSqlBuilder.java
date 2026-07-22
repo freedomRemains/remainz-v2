@@ -45,10 +45,12 @@ public class InsertSqlBuilder {
     public List<String> build(String tableName, List<Map<String, String>> columnDefs,
             List<Map<String, String>> dataRows) {
 
+        // INSERT対象のデータ行がなければ、生成結果も空のまま返却する
         if (dataRows == null || dataRows.isEmpty()) {
             return new ArrayList<>();
         }
 
+        // 各データ行を1件ずつINSERT文へ変換し、実行順を保った一覧にまとめる
         List<String> insertSqlList = new ArrayList<>();
         for (Map<String, String> dataRow : dataRows) {
             insertSqlList.add(buildInsertSql(tableName, columnDefs, dataRow));
@@ -59,6 +61,7 @@ public class InsertSqlBuilder {
     private String buildInsertSql(String tableName, List<Map<String, String>> columnDefs,
             Map<String, String> dataRow) {
 
+        // カラム一覧と値一覧を同じ順序で組み立て、1レコード分のINSERT文を生成する
         StringBuilder columnPart = new StringBuilder();
         StringBuilder valuePart = new StringBuilder();
         for (Map.Entry<String, String> entry : dataRow.entrySet()) {
@@ -75,6 +78,7 @@ public class InsertSqlBuilder {
 
     private String buildColumnValue(List<Map<String, String>> columnDefs, String columnName, String columnValue) {
 
+        // 数値型はクオートせず、未設定値や"null"文字列は0で補完する
         boolean numeric = "INT".equalsIgnoreCase(findColumnType(columnDefs, columnName));
 
         if (numeric) {
@@ -84,6 +88,7 @@ public class InsertSqlBuilder {
             return columnValue;
         }
 
+        // 文字列系は"null"をNULLとして扱い、それ以外はシングルクオートで囲んで出力する
         if (columnValue == null || "null".equals(columnValue)) {
             return "NULL";
         }

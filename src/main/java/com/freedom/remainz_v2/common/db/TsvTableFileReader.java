@@ -47,6 +47,7 @@ public class TsvTableFileReader {
      */
     public ArrayList<LinkedHashMap<String, String>> read(Path filePath) {
 
+        // ファイルの存在を確認したうえで、共通のInputStream読み込み処理へ委譲する
         if (!Files.exists(filePath)) {
             throw new BusinessRuleViolationException(msg.get("msg.err.common.db.fileNotFound", filePath));
         }
@@ -70,6 +71,7 @@ public class TsvTableFileReader {
      */
     public ArrayList<LinkedHashMap<String, String>> read(InputStream inputStream) {
 
+        // UTF-8のBufferedReaderを作成し、TSVレコード解析の共通処理を呼び出す
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             return readRecords(reader);
@@ -80,12 +82,14 @@ public class TsvTableFileReader {
 
     private ArrayList<LinkedHashMap<String, String>> readRecords(BufferedReader reader) throws IOException {
 
+        // 先頭行をヘッダ行として読み込み、列名一覧を確定する
         String headerLine = reader.readLine();
         if (headerLine == null) {
             throw new BusinessRuleViolationException(msg.get("msg.err.common.db.headerRowNotFound"));
         }
         String[] headers = headerLine.split("\t", -1);
 
+        // 残りの各行をヘッダ順のレコードへ変換し、列不足分は空文字列で補完する
         ArrayList<LinkedHashMap<String, String>> records = new ArrayList<>();
         String line;
         while ((line = reader.readLine()) != null) {

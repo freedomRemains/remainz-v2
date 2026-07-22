@@ -39,6 +39,7 @@ public class MsgUtil {
      * @return 可変引数を織り込んだメッセージ
      */
     public String get(String key, Object... args) {
+        // メッセージキーに対応する定義を取得し、未定義キーは内部エラーとして扱う。
         String pattern = properties.getProperty(key);
         if (pattern == null) {
             throw new ApplicationInternalException("メッセージキーが見つかりません。key=" + key);
@@ -47,6 +48,7 @@ public class MsgUtil {
     }
 
     private Properties loadProperties() {
+        // クラスパス上のメッセージ定義ファイルをUTF-8で読み込み、Propertiesへ展開する。
         Properties props = new Properties();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(MESSAGE_FILE)) {
             if (inputStream == null) {
@@ -54,6 +56,7 @@ public class MsgUtil {
             }
             props.load(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         } catch (IOException e) {
+            // メッセージ基盤の初期化に失敗した場合は、起動継続不能な内部エラーとして扱う。
             throw new ApplicationInternalException("メッセージファイルの読み込みに失敗しました。file=" + MESSAGE_FILE, e);
         }
         return props;

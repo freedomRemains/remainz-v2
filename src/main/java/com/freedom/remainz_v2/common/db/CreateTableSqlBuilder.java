@@ -42,10 +42,12 @@ public class CreateTableSqlBuilder {
      */
     public String build(String tableName, List<Map<String, String>> columnDefs) {
 
+        // 対象テーブルに対するカラム定義が取得できていることを確認する
         if (columnDefs == null || columnDefs.isEmpty()) {
             throw new BusinessRuleViolationException(msg.get("msg.err.common.db.columnDefNotFound", tableName));
         }
 
+        // CREATE TABLE句を開始し、定義順のまま各カラム定義を連結する
         StringBuilder sql = new StringBuilder();
         sql.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
 
@@ -74,6 +76,7 @@ public class CreateTableSqlBuilder {
             return primaryKeyColumnSqlBuilder.build(fieldName);
         }
 
+        // 通常カラムは型・NULL制約・DEFAULT値を順に付与して定義文字列を組み立てる
         StringBuilder column = new StringBuilder();
         column.append(fieldName).append(" ").append(typeName);
         if ("NO".equals(allowNull)) {

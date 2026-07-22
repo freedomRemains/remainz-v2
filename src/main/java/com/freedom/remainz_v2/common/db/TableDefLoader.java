@@ -52,7 +52,10 @@ public class TableDefLoader {
     private LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> groupByTableName(
             ArrayList<LinkedHashMap<String, String>> allRows) {
 
+        // テーブルの出現順を維持できるよう、格納先にはLinkedHashMapを使用します。
         LinkedHashMap<String, ArrayList<LinkedHashMap<String, String>>> tableDefMap = new LinkedHashMap<>();
+
+        // 全行をTABLE_NAMEごとに振り分け、各テーブルのカラム定義リストを順番通りにまとめます。
         for (LinkedHashMap<String, String> row : allRows) {
             String tableName = row.get("TABLE_NAME");
             tableDefMap.computeIfAbsent(tableName, key -> new ArrayList<>()).add(row);

@@ -27,6 +27,7 @@ public class SqliteTblDefTableChecker implements TblDefTableChecker {
 
     @Override
     public boolean existsTblDefTable() {
+        // SQLiteのシステムテーブルを参照し、TBL_DEFという名前のテーブルが存在するかを確認します。
         List<String> tableNames = jdbcTemplate.queryForList(
                 "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?", String.class,
                 TBL_DEF_TABLE_NAME);

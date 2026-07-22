@@ -56,6 +56,7 @@ public class LoginService implements ScriptElementService {
     @Override
     public String execute(String contextJson) {
 
+        // 入力JSONから認証に必要な値を取り出し、必須パラメータ不足は業務エラーとして扱う
         ObjectNode context = readAsObjectNode(contextJson);
 
         String mailAddress = context.path("MAIL_ADDRESS").asString("");
@@ -67,6 +68,7 @@ public class LoginService implements ScriptElementService {
             throw new BusinessRuleViolationException(msg.get("msg.err.web.requiredParamMissing", "PASSWORD"));
         }
 
+        // 認証成功時はアカウントIDのみを返し、失敗時はPRG用のリダイレクト情報を組み立てる
         ObjectNode output = objectMapper.createObjectNode();
 
         String authenticatedAccountId = authenticate(mailAddress, password);
@@ -87,6 +89,7 @@ public class LoginService implements ScriptElementService {
 
     private String authenticate(String mailAddress, String password) {
 
+        // メールアドレスに対応するアカウントを取得し、認証対象が一意に定まる場合のみ後続判定へ進める
         List<LinkedHashMap<String, String>> accountRows =
                 recordQueryService.select(ACCOUNT_SQL, List.of(mailAddress));
         if (accountRows.size() != 1) {

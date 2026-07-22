@@ -79,6 +79,7 @@ public class GetAccountService implements ScriptElementService {
     @Override
     public String execute(String contextJson) {
 
+        // 入力JSONからアカウントIDを取得し、未ログイン時はゲストアカウントを適用する
         ObjectNode context = readAsObjectNode(contextJson);
 
         String accountId = context.path("accountId").asString("");
@@ -86,11 +87,13 @@ public class GetAccountService implements ScriptElementService {
             accountId = DEFAULT_ACCNT_ID;
         }
 
+        // アカウント本体と画面部品権限を取得し、アクセス対象ページのロール制約もここで検証する
         List<LinkedHashMap<String, String>> account = recordQueryService.select(ACCOUNT_SQL, List.of(accountId));
         List<LinkedHashMap<String, String>> authList = recordQueryService.select(AUTH_SQL, List.of(accountId));
 
         checkRequireRole(context.path("requestUri").asString(""), accountId);
 
+        // 後続サービスやテンプレートで参照するため、取得したアカウント関連情報を出力JSONへ集約する
         ObjectNode output = objectMapper.createObjectNode();
         output.put("accountId", accountId);
         output.putPOJO("account", account);
@@ -101,10 +104,12 @@ public class GetAccountService implements ScriptElementService {
 
     private void checkRequireRole(String requestUri, String accountId) {
 
+        // ページに要求されるロール一覧と、アカウントに紐づくロール一覧をそれぞれ取得する
         List<LinkedHashMap<String, String>> restrictionRows =
                 recordQueryService.select(ROLE_RESTRICTION_SQL, List.of(requestUri));
         List<LinkedHashMap<String, String>> roleRows = recordQueryService.select(ROLE_SQL, List.of(accountId));
 
+        // 要求ロールを順に確認し、制約なしまたは一致ロールありなら即時に通過させる
         for (LinkedHashMap<String, String> restrictionRow : restrictionRows) {
 
             String requiredApRoleId = restrictionRow.get("APROLE_ID");

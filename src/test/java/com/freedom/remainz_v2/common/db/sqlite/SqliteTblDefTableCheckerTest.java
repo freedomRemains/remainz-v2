@@ -1,8 +1,8 @@
 package com.freedom.remainz_v2.common.db.sqlite;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -26,7 +26,7 @@ class SqliteTblDefTableCheckerTest {
     @Test
     void sqlite_master上にTBL_DEFテーブルが存在する場合はtrueが返却されること() {
 
-        when(jdbcTemplate.queryForList(anyString(), any(Class.class), anyString())).thenReturn(List.of("TBL_DEF"));
+        when(jdbcTemplate.queryForList(anyString(), eq(String.class), anyString())).thenReturn(List.of("TBL_DEF"));
 
         assertThat(sqliteTblDefTableChecker.existsTblDefTable()).isTrue();
     }
@@ -34,7 +34,7 @@ class SqliteTblDefTableCheckerTest {
     @Test
     void sqlite_master上にTBL_DEFテーブルが存在しない場合はfalseが返却されること() {
 
-        when(jdbcTemplate.queryForList(anyString(), any(Class.class), anyString())).thenReturn(List.of());
+        when(jdbcTemplate.queryForList(anyString(), eq(String.class), anyString())).thenReturn(List.of());
 
         assertThat(sqliteTblDefTableChecker.existsTblDefTable()).isFalse();
     }

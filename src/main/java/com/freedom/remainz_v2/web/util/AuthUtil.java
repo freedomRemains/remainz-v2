@@ -26,6 +26,7 @@ public final class AuthUtil {
      * @return 権限を持っている場合は{@code true}
      */
     public static boolean hasAuth(String htmlPartsId, List<Map<String, Object>> authList) {
+        // 権限一覧を走査し、対象パーツIDが1件でも含まれていれば権限ありと判定する。
         for (Map<String, Object> row : authList) {
             if (htmlPartsId.equals(row.get("HTML_PARTS_ID"))) {
                 return true;
@@ -57,6 +58,7 @@ public final class AuthUtil {
     }
 
     private static boolean hasAuthKind(String htmlPartsId, String authKind, List<Map<String, Object>> authList) {
+        // パーツIDと権限種別の両方が一致する行を探し、該当があれば権限ありと判定する。
         for (Map<String, Object> row : authList) {
             if (htmlPartsId.equals(row.get("HTML_PARTS_ID")) && authKind.equals(row.get("AUTH_KIND"))) {
                 return true;

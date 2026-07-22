@@ -12,6 +12,7 @@ public class DropTableSqlBuilder {
      * @return DROP TABLE文
      */
     public String build(String tableName) {
+        // 指定されたテーブルを安全に削除できるよう、IF EXISTS付きのDROP文を組み立てます。
         return "DROP TABLE IF EXISTS " + tableName + ";";
     }
 }

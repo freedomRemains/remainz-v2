@@ -51,8 +51,10 @@ public class RecordQueryService {
      */
     public ArrayList<LinkedHashMap<String, String>> select(String sql, List<String> params) {
 
+        // JdbcTemplateでSELECTを実行し、生の検索結果を取得する
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, params.toArray());
 
+        // 取得した各行を、カラム順を保った文字列マップの一覧に変換する
         ArrayList<LinkedHashMap<String, String>> resultList = new ArrayList<>();
         for (Map<String, Object> row : rows) {
             LinkedHashMap<String, String> columnMap = new LinkedHashMap<>();
