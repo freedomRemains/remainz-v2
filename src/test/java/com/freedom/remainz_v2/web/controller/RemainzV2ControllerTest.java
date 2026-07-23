@@ -88,4 +88,124 @@ class RemainzV2ControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:myPage.html?errMsgKey=5"));
     }
+
+    @Test
+    void テーブルデータメンテナンス画面のPOSTリクエストで一括削除が実行されビュー名が解決されること() throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
+
+        mockMvc.perform(post("/remainz-v2/service/tableDataMainte.html")
+                        .param("tableName", "ACCNT")
+                        .param("1000002", "on"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("10000_contents"));
+    }
+
+    @Test
+    void 新規レコード追加画面のGETリクエストでビュー名が解決されること() throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
+
+        mockMvc.perform(get("/remainz-v2/service/tableDataMainte/newRecord.html").param("tableName", "ACCNT"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("10000_contents"));
+    }
+
+    @Test
+    void 新規レコード追加画面のPOSTリクエストで応答種別redirectの場合はredirectプレフィックス付きのビュー名が返却されること()
+            throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"redirect\",\"destination\":\"tableDataMainte.html?tableName=ACCNT\"}");
+
+        mockMvc.perform(post("/remainz-v2/service/tableDataMainte/newRecord.html").param("tableName", "ACCNT"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:tableDataMainte.html?tableName=ACCNT"));
+    }
+
+    @Test
+    void レコード編集画面のGETリクエストでビュー名が解決されること() throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
+
+        mockMvc.perform(get("/remainz-v2/service/tableDataMainte/editRecord.html")
+                        .param("tableName", "ACCNT").param("recordId", "1000001"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("10000_contents"));
+    }
+
+    @Test
+    void レコード編集画面のPOSTリクエストで応答種別redirectの場合はredirectプレフィックス付きのビュー名が返却されること()
+            throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"redirect\",\"destination\":\"tableDataMainte/editRecord.html?tableName=ACCNT"
+                        + "&recordId=1000001&errMsgKey=123\"}");
+
+        mockMvc.perform(post("/remainz-v2/service/tableDataMainte/editRecord.html")
+                        .param("tableName", "ACCNT").param("recordId", "1000001"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:tableDataMainte/editRecord.html?tableName=ACCNT"
+                        + "&recordId=1000001&errMsgKey=123"));
+    }
+
+    @Test
+    void レコード削除画面のGETリクエストでビュー名が解決されること() throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
+
+        mockMvc.perform(get("/remainz-v2/service/tableDataMainte/deleteRecord.html")
+                        .param("tableName", "ACCNT").param("recordId", "1000001"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("10000_contents"));
+    }
+
+    @Test
+    void レコード削除画面のPOSTリクエストで応答種別redirectの場合はredirectプレフィックス付きのビュー名が返却されること()
+            throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"redirect\",\"destination\":\"tableDataMainte.html?tableName=ACCNT&errMsgKey=123\"}");
+
+        mockMvc.perform(post("/remainz-v2/service/tableDataMainte/deleteRecord.html")
+                        .param("tableName", "ACCNT").param("recordId", "1000001"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:tableDataMainte.html?tableName=ACCNT&errMsgKey=123"));
+    }
+
+    @Test
+    void レコード参照画面のGETリクエストでビュー名が解決されること() throws Exception {
+
+        when(requestHandlingService.execute(anyString())).thenReturn(
+                "{\"respKind\":\"forward\",\"destination\":\"10000_contents.html\","
+                        + "\"htmlPage\":[{\"partsInPageId\":\"1000001\",\"htmlPartsId\":\"1000001\","
+                        + "\"items\":[{\"itemKey\":\"systemName\",\"records\":[{\"GNR_VAL\":\"Remainz\"}]}]}],"
+                        + "\"account\":[{\"ACCNT_ID\":\"1000001\",\"ACCOUNT_NAME\":\"ゲスト\"}],"
+                        + "\"authList\":[{\"HTML_PARTS_ID\":\"1000001\",\"AUTH_KIND\":\"read\"}]}");
+
+        mockMvc.perform(get("/remainz-v2/service/recordRef.html")
+                        .param("tableName", "ACCNT").param("recordId", "1000001"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("10000_contents"));
+    }
 }

@@ -80,6 +80,46 @@ public class RemainzV2Controller {
         return handleRequest(request, "GET", model);
     }
 
+    @PostMapping("/remainz-v2/service/tableDataMainte.html")
+    public String postTableDataMainte(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
+    }
+
+    @GetMapping("/remainz-v2/service/tableDataMainte/newRecord.html")
+    public String getNewRecord(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @PostMapping("/remainz-v2/service/tableDataMainte/newRecord.html")
+    public String postNewRecord(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
+    }
+
+    @GetMapping("/remainz-v2/service/tableDataMainte/editRecord.html")
+    public String getEditRecord(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @PostMapping("/remainz-v2/service/tableDataMainte/editRecord.html")
+    public String postEditRecord(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
+    }
+
+    @GetMapping("/remainz-v2/service/tableDataMainte/deleteRecord.html")
+    public String getDeleteRecord(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
+    @PostMapping("/remainz-v2/service/tableDataMainte/deleteRecord.html")
+    public String postDeleteRecord(HttpServletRequest request, Model model) {
+        return handleRequest(request, "POST", model);
+    }
+
+    @GetMapping("/remainz-v2/service/recordRef.html")
+    public String getRecordRef(HttpServletRequest request, Model model) {
+        return handleRequest(request, "GET", model);
+    }
+
     @GetMapping("/remainz-v2/service/updateDbConfirm.html")
     public String getUpdateDbConfirm(HttpServletRequest request, Model model) {
         return handleRequest(request, "GET", model);
