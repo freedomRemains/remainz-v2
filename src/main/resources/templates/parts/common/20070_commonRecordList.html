@@ -6,8 +6,12 @@
                   dbRecordList=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'dbRecordList')},
                   recordRefUri=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'recordRefUri')[0].URI_PATTERN},
                   recordListUri=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'recordListUri')[0].URI_PATTERN},
+                  newRecordUri=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'newRecordUri')[0].URI_PATTERN},
+                  deleteRecordUri=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'deleteRecordUri')[0].URI_PATTERN},
+                  editRecordUri=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'editRecordUri')[0].URI_PATTERN},
                   limitList=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'limitList')},
                   tableName=${tableDefList[0].TABLE_NAME},
+                  hasEditAuth=${T(com.freedom.remainz_v2.web.util.AuthUtil).hasEditAuth('1000601', authList)},
                   currentLimit=${limit != null} ? ${limit} : '10',
                   currentOffset=${offset != null} ? ${offset} : '0',
                   totalRecordCount=${T(com.freedom.remainz_v2.web.util.HtmlPageItemUtil).findRecords(htmlPage, 'totalRecord')[0]['COUNT(*)']}">
@@ -24,6 +28,13 @@
                     <span class="form-label fw-bold"
                           th:text="${tableDefList[0].TABLE_LOGICAL_NAME + '(' + tableDefList[0].TABLE_NAME + ')'}">table</span><br />
                 </label>
+                <!--/* 編集権限を持つ場合のみ、新規レコード追加・一括削除の操作ボタンを表示する */-->
+                <span th:if="${hasEditAuth}">
+                    <a class="btn btn-secondary px-2 py-0"
+                       th:href="@{__${newRecordUri}__(tableName=${tableName})}">新規レコード追加</a>
+                    <input class="btn btn-secondary px-2 py-0" type="button" name="doPost" value="一括削除"
+                           onclick="confirmBulkDelete()">
+                </span>
             </div>
             <!--/* table-responsiveはtable要素ではなく、それを囲むdiv要素に付与しないと
                    横スクロールが有効にならない(Bootstrapの仕様)ため、scrollAreaの方へ付与する */-->
@@ -31,12 +42,26 @@
                 <table class="table table-bordered table-striped table-hover text-nowrap">
                     <thead class="table-success">
                         <tr>
+                            <th th:if="${hasEditAuth}" class="align-middle px-2 py-0">操作</th>
+                            <th th:if="${hasEditAuth}" class="align-middle px-2 py-0">選択</th>
                             <th class="align-middle px-2 py-0" th:each="def : ${tableDefList}"
                                 th:text="${def.FIELD_LOGICAL_NAME}">field</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="dbRecord : ${dbRecordList}">
+                        <!--/* 主キー(<テーブル物理名>_ID)の値を、編集・削除リンク及びチェックボックスの
+                               対象レコードIDとして使用する */-->
+                        <tr th:each="dbRecord : ${dbRecordList}"
+                            th:with="recordId=${dbRecord.get(tableName + '_ID')}">
+                            <td th:if="${hasEditAuth}" class="px-2 py-0">
+                                <a class="btn btn-secondary px-2 py-0"
+                                   th:href="@{__${deleteRecordUri}__(tableName=${tableName},recordId=${recordId})}">削除</a>
+                                <a class="btn btn-secondary px-2 py-0"
+                                   th:href="@{__${editRecordUri}__(tableName=${tableName},recordId=${recordId})}">編集</a>
+                            </td>
+                            <td th:if="${hasEditAuth}" class="px-2 py-0">
+                                <input type="checkbox" th:name="${recordId}">
+                            </td>
                             <td class="px-2 py-0" th:each="def : ${tableDefList}">
                                 <a th:if="${def.FOREIGN_TABLE != null and #strings.length(def.FOREIGN_TABLE) > 0}"
                                    th:href="@{__${recordRefUri}__(tableName=${def.FOREIGN_TABLE},recordId=${dbRecord.get(def.FIELD_NAME)})}"
