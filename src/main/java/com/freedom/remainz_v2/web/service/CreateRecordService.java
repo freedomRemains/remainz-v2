@@ -44,13 +44,15 @@ public class CreateRecordService implements ScriptElementService {
 
     private final RecordQueryService recordQueryService;
     private final JdbcTemplate jdbcTemplate;
+    private final TableNameValidator tableNameValidator;
     private final ObjectMapper objectMapper;
     private final MsgUtil msg;
 
     public CreateRecordService(RecordQueryService recordQueryService, JdbcTemplate jdbcTemplate,
-            ObjectMapper objectMapper, MsgUtil msg) {
+            TableNameValidator tableNameValidator, ObjectMapper objectMapper, MsgUtil msg) {
         this.recordQueryService = recordQueryService;
         this.jdbcTemplate = jdbcTemplate;
+        this.tableNameValidator = tableNameValidator;
         this.objectMapper = objectMapper;
         this.msg = msg;
     }
@@ -65,14 +67,10 @@ public class CreateRecordService implements ScriptElementService {
             throw new BusinessRuleViolationException(msg.get("msg.err.web.requiredParamMissing", "tableName"));
         }
 
-        try {
-            return writeAsString(doCreateRecord(context, tableName));
+        // テーブル名がTBL_DEFに実在しない場合はSQLへ混入させず業務エラーとする
+        tableNameValidator.validate(tableName);
 
-        } catch (BusinessRuleViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApplicationInternalException(e.getMessage(), e);
-        }
+        return writeAsString(doCreateRecord(context, tableName));
     }
 
     private ObjectNode doCreateRecord(ObjectNode context, String tableName) {

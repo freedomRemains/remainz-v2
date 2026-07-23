@@ -34,11 +34,14 @@ public class BulkDeleteRecordService implements ScriptElementService {
     private static final String CHECKED_VALUE = "on";
 
     private final JdbcTemplate jdbcTemplate;
+    private final TableNameValidator tableNameValidator;
     private final ObjectMapper objectMapper;
     private final MsgUtil msg;
 
-    public BulkDeleteRecordService(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper, MsgUtil msg) {
+    public BulkDeleteRecordService(JdbcTemplate jdbcTemplate, TableNameValidator tableNameValidator,
+            ObjectMapper objectMapper, MsgUtil msg) {
         this.jdbcTemplate = jdbcTemplate;
+        this.tableNameValidator = tableNameValidator;
         this.objectMapper = objectMapper;
         this.msg = msg;
     }
@@ -53,14 +56,10 @@ public class BulkDeleteRecordService implements ScriptElementService {
             throw new BusinessRuleViolationException(msg.get("msg.err.web.requiredParamMissing", "tableName"));
         }
 
-        try {
-            return writeAsString(doBulkDeleteRecord(context, tableName));
+        // テーブル名がTBL_DEFに実在しない場合はSQLへ混入させず業務エラーとする
+        tableNameValidator.validate(tableName);
 
-        } catch (BusinessRuleViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApplicationInternalException(e.getMessage(), e);
-        }
+        return writeAsString(doBulkDeleteRecord(context, tableName));
     }
 
     private ObjectNode doBulkDeleteRecord(ObjectNode context, String tableName) {

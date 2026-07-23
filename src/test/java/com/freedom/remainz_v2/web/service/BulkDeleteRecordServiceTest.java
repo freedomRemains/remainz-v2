@@ -3,6 +3,8 @@ package com.freedom.remainz_v2.web.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,12 +28,15 @@ class BulkDeleteRecordServiceTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
 
+    @Mock
+    private TableNameValidator tableNameValidator;
+
     private BulkDeleteRecordService bulkDeleteRecordService;
 
     @BeforeEach
     void setUp() {
-        bulkDeleteRecordService =
-                new BulkDeleteRecordService(jdbcTemplate, JsonMapper.builder().build(), new MsgUtil());
+        bulkDeleteRecordService = new BulkDeleteRecordService(jdbcTemplate, tableNameValidator,
+                JsonMapper.builder().build(), new MsgUtil());
     }
 
     @Test
@@ -66,5 +71,16 @@ class BulkDeleteRecordServiceTest {
 
         assertThatThrownBy(() -> bulkDeleteRecordService.execute("{\"accountId\":\"1000099\"}"))
                 .isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void tableNameが不正な場合は業務エラーとなりDBが更新されないこと() {
+
+        doThrow(new BusinessRuleViolationException("不正なテーブル名です")).when(tableNameValidator).validate("INVALID");
+
+        assertThatThrownBy(
+                () -> bulkDeleteRecordService.execute("{\"tableName\":\"INVALID\",\"1000001\":\"on\"}"))
+                .isInstanceOf(BusinessRuleViolationException.class);
+        verifyNoInteractions(jdbcTemplate);
     }
 }

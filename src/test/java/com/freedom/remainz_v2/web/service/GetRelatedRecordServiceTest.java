@@ -3,6 +3,8 @@ package com.freedom.remainz_v2.web.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -36,11 +38,14 @@ class GetRelatedRecordServiceTest {
     @Mock
     private ErrMsgService errMsgService;
 
+    @Mock
+    private TableNameValidator tableNameValidator;
+
     private GetRelatedRecordService getRelatedRecordService;
 
     @BeforeEach
     void setUp() {
-        getRelatedRecordService = new GetRelatedRecordService(recordQueryService, errMsgService,
+        getRelatedRecordService = new GetRelatedRecordService(recordQueryService, errMsgService, tableNameValidator,
                 JsonMapper.builder().build(), new MsgUtil());
     }
 
@@ -168,5 +173,16 @@ class GetRelatedRecordServiceTest {
 
         assertThatThrownBy(() -> getRelatedRecordService.execute("{\"tableName\":\"ACCNT\"}"))
                 .isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void tableNameが不正な場合は業務エラーとなること() {
+
+        doThrow(new BusinessRuleViolationException("不正なテーブル名です")).when(tableNameValidator).validate("INVALID");
+
+        assertThatThrownBy(
+                () -> getRelatedRecordService.execute("{\"tableName\":\"INVALID\",\"recordId\":\"1000001\"}"))
+                .isInstanceOf(BusinessRuleViolationException.class);
+        verifyNoInteractions(recordQueryService);
     }
 }

@@ -6,5 +6,7 @@ remainz:
   dbmng:
 
     # DB構成取得で生成するTSV/SQLファイルの配置先ディレクトリ。
-    # 本番環境では永続ボリューム上のパスを想定し、環境変数での上書きを可能にする。
-    work-dir: ${REMAINZ_DBMNG_WORK_DIR:./dbmng-work}
+    # 本番環境ではCI/CDにより実行可能jarが/opt/remainz-v2配下へ配置されるため、そのパス以下を
+    # デフォルトとし、環境変数での上書きも可能にする。存在しない場合は各サービスの
+    # Files.createDirectories呼び出しで自動作成される。
+    work-dir: ${REMAINZ_DBMNG_WORK_DIR:/opt/remainz-v2/dbmng}

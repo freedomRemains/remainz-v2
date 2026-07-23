@@ -264,3 +264,6 @@ Spring Boot＋Thymeleafへ乗せ換え、ECSコンテナなどにデプロイし
   内容が未整備の状態のものがある。
 - ルール類の陳腐化防止のため、定期的に `documents/rules/` の内容を見直し、それに応じて
   コード・テストを更新する運用とする。
+- `documents/superpowers/` — superpowersプラグインの実装計画等、superpowers関連の資材の
+  保存先。他の`documents/`配下ディレクトリと同様の置き場所に統一するため、`docs/`配下には
+  配置しない。

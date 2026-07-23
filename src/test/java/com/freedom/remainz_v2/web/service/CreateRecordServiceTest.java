@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -39,12 +41,15 @@ class CreateRecordServiceTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
 
+    @Mock
+    private TableNameValidator tableNameValidator;
+
     private CreateRecordService createRecordService;
 
     @BeforeEach
     void setUp() {
-        createRecordService =
-                new CreateRecordService(recordQueryService, jdbcTemplate, JsonMapper.builder().build(), new MsgUtil());
+        createRecordService = new CreateRecordService(recordQueryService, jdbcTemplate, tableNameValidator,
+                JsonMapper.builder().build(), new MsgUtil());
     }
 
     private LinkedHashMap<String, String> fieldDef(String fieldName) {
@@ -107,5 +112,16 @@ class CreateRecordServiceTest {
 
         assertThatThrownBy(() -> createRecordService.execute("{\"accountId\":\"1000001\"}"))
                 .isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void tableNameが不正な場合は業務エラーとなりDBが更新されないこと() {
+
+        doThrow(new BusinessRuleViolationException("不正なテーブル名です")).when(tableNameValidator).validate("INVALID");
+
+        assertThatThrownBy(
+                () -> createRecordService.execute("{\"tableName\":\"INVALID\",\"accountId\":\"1000001\"}"))
+                .isInstanceOf(BusinessRuleViolationException.class);
+        verifyNoInteractions(jdbcTemplate);
     }
 }

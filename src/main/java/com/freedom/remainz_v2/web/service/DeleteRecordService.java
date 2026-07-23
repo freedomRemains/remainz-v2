@@ -30,13 +30,15 @@ public class DeleteRecordService implements ScriptElementService {
 
     private final JdbcTemplate jdbcTemplate;
     private final ErrMsgService errMsgService;
+    private final TableNameValidator tableNameValidator;
     private final ObjectMapper objectMapper;
     private final MsgUtil msg;
 
-    public DeleteRecordService(JdbcTemplate jdbcTemplate, ErrMsgService errMsgService, ObjectMapper objectMapper,
-            MsgUtil msg) {
+    public DeleteRecordService(JdbcTemplate jdbcTemplate, ErrMsgService errMsgService,
+            TableNameValidator tableNameValidator, ObjectMapper objectMapper, MsgUtil msg) {
         this.jdbcTemplate = jdbcTemplate;
         this.errMsgService = errMsgService;
+        this.tableNameValidator = tableNameValidator;
         this.objectMapper = objectMapper;
         this.msg = msg;
     }
@@ -55,14 +57,10 @@ public class DeleteRecordService implements ScriptElementService {
             throw new BusinessRuleViolationException(msg.get("msg.err.web.requiredParamMissing", "recordId"));
         }
 
-        try {
-            return writeAsString(doDeleteRecord(context, tableName, recordId));
+        // テーブル名がTBL_DEFに実在しない場合はSQLへ混入させず業務エラーとする
+        tableNameValidator.validate(tableName);
 
-        } catch (BusinessRuleViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApplicationInternalException(e.getMessage(), e);
-        }
+        return writeAsString(doDeleteRecord(context, tableName, recordId));
     }
 
     private ObjectNode doDeleteRecord(ObjectNode context, String tableName, String recordId) {

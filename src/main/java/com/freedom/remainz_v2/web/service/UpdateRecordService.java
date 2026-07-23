@@ -47,14 +47,17 @@ public class UpdateRecordService implements ScriptElementService {
     private final RecordQueryService recordQueryService;
     private final JdbcTemplate jdbcTemplate;
     private final ErrMsgService errMsgService;
+    private final TableNameValidator tableNameValidator;
     private final ObjectMapper objectMapper;
     private final MsgUtil msg;
 
     public UpdateRecordService(RecordQueryService recordQueryService, JdbcTemplate jdbcTemplate,
-            ErrMsgService errMsgService, ObjectMapper objectMapper, MsgUtil msg) {
+            ErrMsgService errMsgService, TableNameValidator tableNameValidator, ObjectMapper objectMapper,
+            MsgUtil msg) {
         this.recordQueryService = recordQueryService;
         this.jdbcTemplate = jdbcTemplate;
         this.errMsgService = errMsgService;
+        this.tableNameValidator = tableNameValidator;
         this.objectMapper = objectMapper;
         this.msg = msg;
     }
@@ -73,14 +76,10 @@ public class UpdateRecordService implements ScriptElementService {
             throw new BusinessRuleViolationException(msg.get("msg.err.web.requiredParamMissing", "recordId"));
         }
 
-        try {
-            return writeAsString(doUpdateRecord(context, tableName, recordId));
+        // テーブル名がTBL_DEFに実在しない場合はSQLへ混入させず業務エラーとする
+        tableNameValidator.validate(tableName);
 
-        } catch (BusinessRuleViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApplicationInternalException(e.getMessage(), e);
-        }
+        return writeAsString(doUpdateRecord(context, tableName, recordId));
     }
 
     private ObjectNode doUpdateRecord(ObjectNode context, String tableName, String recordId) {

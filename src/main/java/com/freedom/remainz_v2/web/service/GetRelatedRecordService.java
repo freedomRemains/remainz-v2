@@ -40,13 +40,15 @@ public class GetRelatedRecordService implements ScriptElementService {
 
     private final RecordQueryService recordQueryService;
     private final ErrMsgService errMsgService;
+    private final TableNameValidator tableNameValidator;
     private final ObjectMapper objectMapper;
     private final MsgUtil msg;
 
     public GetRelatedRecordService(RecordQueryService recordQueryService, ErrMsgService errMsgService,
-            ObjectMapper objectMapper, MsgUtil msg) {
+            TableNameValidator tableNameValidator, ObjectMapper objectMapper, MsgUtil msg) {
         this.recordQueryService = recordQueryService;
         this.errMsgService = errMsgService;
+        this.tableNameValidator = tableNameValidator;
         this.objectMapper = objectMapper;
         this.msg = msg;
     }
@@ -65,14 +67,10 @@ public class GetRelatedRecordService implements ScriptElementService {
             throw new BusinessRuleViolationException(msg.get("msg.err.web.requiredParamMissing", "recordId"));
         }
 
-        try {
-            return writeAsString(doGetRelatedRecord(context, tableName, recordId));
+        // テーブル名がTBL_DEFに実在しない場合はSQLへ混入させず業務エラーとする
+        tableNameValidator.validate(tableName);
 
-        } catch (BusinessRuleViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApplicationInternalException(e.getMessage(), e);
-        }
+        return writeAsString(doGetRelatedRecord(context, tableName, recordId));
     }
 
     private ObjectNode doGetRelatedRecord(ObjectNode context, String tableName, String recordId) {
