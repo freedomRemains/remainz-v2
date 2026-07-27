@@ -64,7 +64,7 @@ wsl -l -o
 wsl --install -d Ubuntu
 ```
 
-- なおインストール可能なLinux OSの一覧は、次のコマンドで確認するころができる。
+- なおインストール可能なLinux OSの一覧は、次のコマンドで確認することができる。
 
 ```PowerShell
 [PowerShell]
